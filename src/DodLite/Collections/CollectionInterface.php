@@ -8,7 +8,7 @@ use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
 use DodLite\Exceptions\WriteFailedException;
 
-interface CollectionInterface
+interface CollectionInterface extends CollectionAwareInterface
 {
     public function getName(): string;
 
