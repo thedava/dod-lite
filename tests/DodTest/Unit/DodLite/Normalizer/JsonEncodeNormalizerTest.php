@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace DodTest\Unit\DodLite\Normalizer;
 
-use DodLite\Normalizer\DataToFileNormalizer;
+use DodLite\Normalizer\JsonEncodeNormalizer;
 
-test('DataToFileNormalizer works as expected', function (mixed $data, string $expectedResult) {
-    $normalizer = new DataToFileNormalizer(pretty: false);
+test('JsonEncodeNormalizer works as expected', function (mixed $data, string $expectedResult) {
+    $normalizer = new JsonEncodeNormalizer(pretty: false);
     expect($normalizer->normalize($data))->toBe($expectedResult);
 })->with([
     'Valid JSON' => [

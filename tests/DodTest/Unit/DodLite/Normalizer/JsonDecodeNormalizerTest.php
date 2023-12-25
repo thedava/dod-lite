@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace DodTest\Unit\DodLite\Normalizer;
 
 use DodLite\Normalizer\DodNormalizerException;
-use DodLite\Normalizer\FileToDataNormalizer;
+use DodLite\Normalizer\JsonDecodeNormalizer;
 
-test('FileToDataNormalizer works as expected', function (mixed $data, array $expectedResult) {
-    $normalizer = new FileToDataNormalizer();
+test('JsonDecodeNormalizer works as expected', function (mixed $data, array $expectedResult) {
+    $normalizer = new JsonDecodeNormalizer();
     expect($normalizer->normalize($data))->toBe($expectedResult);
 })->with([
     'Valid JSON' => [
@@ -17,6 +17,6 @@ test('FileToDataNormalizer works as expected', function (mixed $data, array $exp
 ]);
 
 test('Invalid JSON throws exception', function () {
-    $normalizer = new FileToDataNormalizer();
+    $normalizer = new JsonDecodeNormalizer();
     $normalizer->normalize('{"foo":"bar"');
 })->throws(DodNormalizerException::class);

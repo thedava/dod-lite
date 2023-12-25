@@ -5,7 +5,7 @@ namespace DodLite\Normalizer;
 
 use Throwable;
 
-class FileToDataNormalizer implements NormalizerInterface
+class JsonDecodeNormalizer implements NormalizerInterface
 {
     public function normalize(mixed $data): array
     {

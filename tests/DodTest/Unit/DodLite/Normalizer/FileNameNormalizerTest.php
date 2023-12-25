@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace DodTest\Unit\DodLite\Normalizer;
 
-use DodLite\Normalizer\KeyNormalizer;
+use DodLite\Normalizer\FileNameNormalizer;
 
-test('KeyNormalizer works as expected', function (string $input, string $expectedResult) {
-    $normalizer = new KeyNormalizer();
+test('FileNameNormalizer works as expected', function (string $input, string $expectedResult) {
+    $normalizer = new FileNameNormalizer();
     expect($normalizer->normalize($input))->toBe($expectedResult);
 })->with([
     'Lowercase'                  => [

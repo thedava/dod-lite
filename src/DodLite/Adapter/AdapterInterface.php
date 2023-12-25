@@ -3,32 +3,27 @@ declare(strict_types=1);
 
 namespace DodLite\Adapter;
 
-use DodLite\Data\Document;
-use DodLite\KeyNotFoundException;
+use DodLite\Exceptions\NotFoundException;
+use Generator;
 
 interface AdapterInterface
 {
-    public function write(string $collection, Document $data): void;
+    public function write(string $collection, string|int $id, array $data): void;
 
     /**
-     * @throws KeyNotFoundException
+     * @throws \DodLite\Exceptions\NotFoundException
      */
-    public function read(string $collection, string $key): Document;
+    public function read(string $collection, string|int $id): array;
 
-    public function has(string $collection, string $key): bool;
-
-    /**
-     * @throws KeyNotFoundException
-     */
-    public function delete(string $collection, string $key): void;
+    public function has(string $collection, string|int $id): bool;
 
     /**
-     * @return array<Document>
+     * @throws \DodLite\Exceptions\NotFoundException
      */
-    public function readFiltered(string $collection, callable $filter): array;
+    public function delete(string $collection, string|int $id): void;
 
     /**
-     * @return array<Document>
+     * @return Generator<string|int, array>
      */
-    public function readAll(string $collection): array;
+    public function readAll(string $collection): Generator;
 }

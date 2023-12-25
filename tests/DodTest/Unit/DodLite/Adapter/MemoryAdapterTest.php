@@ -1,30 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace DodTest\Integration\Adapter;
+namespace DodTest\Unit\DodLite\Adapter;
 
-use DodLite\Adapter\FlysystemAdapter;
+use DodLite\Adapter\MemoryAdapter;
 use DodLite\Exceptions\NotFoundException;
-use League\Flysystem\Filesystem;
-use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 
-function createFlysystemAdapter(): FlysystemAdapter
-{
-    return new FlysystemAdapter(
-        new Filesystem(
-            new InMemoryFilesystemAdapter()
-        )
-    );
-}
 
 test('Reading non-existing data throws exception', function (): void {
-    $flysystemAdapter = createFlysystemAdapter();
+    $flysystemAdapter = new MemoryAdapter();
 
     $flysystemAdapter->read('collection', 'key');
 })->throws(NotFoundException::class);
 
 test('Writing and Reading data works', function (): void {
-    $flysystemAdapter = createFlysystemAdapter();
+    $flysystemAdapter = new MemoryAdapter();
 
     $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
     $data = $flysystemAdapter->read('collection', 'key');
@@ -33,7 +23,7 @@ test('Writing and Reading data works', function (): void {
 });
 
 test('Deleting data works', function (): void {
-    $flysystemAdapter = createFlysystemAdapter();
+    $flysystemAdapter = new MemoryAdapter();
 
     $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
     expect($flysystemAdapter->has('collection', 'key'))->toBeTrue();
@@ -44,7 +34,7 @@ test('Deleting data works', function (): void {
 });
 
 test('readAll works', function (): void {
-    $flysystemAdapter = createFlysystemAdapter();
+    $flysystemAdapter = new MemoryAdapter();
 
     $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
     $flysystemAdapter->write('collection', 'key2', ['data' => 'value2']);
@@ -57,7 +47,7 @@ test('readAll works', function (): void {
 
 
 test('readAll without data works', function (): void {
-    $flysystemAdapter = createFlysystemAdapter();
+    $flysystemAdapter = new MemoryAdapter();
 
     $documents = iterator_to_array($flysystemAdapter->readAll('collection'));
     expect($documents)->toBe([]);

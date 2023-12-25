@@ -5,7 +5,7 @@ namespace DodLite\Normalizer;
 
 use Throwable;
 
-class DataToFileNormalizer implements NormalizerInterface
+class JsonEncodeNormalizer implements NormalizerInterface
 {
     private readonly int $flags;
 

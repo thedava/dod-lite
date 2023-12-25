@@ -1,26 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace DodLite\Data;
+namespace DodLite\Documents;
 
-class Document
+class Document implements DocumentInterface
 {
     public function __construct(
-        private readonly string $key,
-        private array $content,
+        private readonly string|int $id,
+        private array               $content,
     )
     {
 
     }
 
-    public function __toString(): string
+    public function getId(): string|int
     {
-        return $this->getKey();
-    }
-
-    public function getKey(): string
-    {
-        return $this->key;
+        return $this->id;
     }
 
     public function getContent(): array

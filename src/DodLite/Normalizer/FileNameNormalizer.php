@@ -5,7 +5,7 @@ namespace DodLite\Normalizer;
 
 use ArrayObject;
 
-class KeyNormalizer implements NormalizerInterface
+class FileNameNormalizer implements NormalizerInterface
 {
     private readonly ArrayObject $cache;
 

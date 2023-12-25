@@ -5,5 +5,8 @@ namespace DodLite\Normalizer;
 
 interface NormalizerInterface
 {
+    /**
+     * @throws DodNormalizerException
+     */
     public function normalize(mixed $data): mixed;
 }
