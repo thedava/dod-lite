@@ -23,6 +23,8 @@ interface CollectionInterface
      */
     public function getAllDocuments(int $sort = SORT_ASC): array;
 
+    public function createDocument(string|int $id, array $content): DocumentInterface;
+
     /**
      * @throws NotFoundException
      * @throws DeleteFailedException

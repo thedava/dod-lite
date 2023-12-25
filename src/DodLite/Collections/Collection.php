@@ -41,7 +41,7 @@ class Collection implements CollectionInterface, CollectionAwareInterface
         return $this->name;
     }
 
-    private function createDocument(string|int $id, array $content): DocumentInterface
+    public function createDocument(string|int $id, array $content): DocumentInterface
     {
         if (isset($this->documents[$id])) {
             $document = $this->documents[$id];
@@ -74,7 +74,7 @@ class Collection implements CollectionInterface, CollectionAwareInterface
 
     public function getCollection(string $name): CollectionInterface
     {
-        return $this->manager->getCollection(sprintf('%s.%s', $this->name, $name));
+        return $this->manager->getCollection(sprintf('%s.%s', $this->getName(), $name));
     }
 
     public function writeDocument(DocumentInterface $document): void
@@ -84,7 +84,7 @@ class Collection implements CollectionInterface, CollectionAwareInterface
 
     public function writeData(string|int $id, array $data): void
     {
-        $this->adapter->write($this->name, $id, $data);
+        $this->adapter->write($this->getName(), $id, $data);
     }
 
     /**
@@ -92,20 +92,20 @@ class Collection implements CollectionInterface, CollectionAwareInterface
      */
     public function getDocumentById(string|int $id): DocumentInterface
     {
-        return $this->createDocument($id, $this->adapter->read($this->name, $id));
+        return $this->createDocument($id, $this->adapter->read($this->getName(), $id));
     }
 
     public function hasDocumentById(string|int $id): bool
     {
-        return $this->adapter->has($this->name, $id);
+        return $this->adapter->has($this->getName(), $id);
     }
 
     /**
-     * @throws \DodLite\Exceptions\NotFoundException
+     * @throws NotFoundException
      */
     public function deleteDocumentById(string|int $id): void
     {
-        $this->adapter->delete($this->name, $id);
+        $this->adapter->delete($this->getName(), $id);
 
         // Remove from cache
         if ($this->documents->offsetExists($id)) {
@@ -123,29 +123,35 @@ class Collection implements CollectionInterface, CollectionAwareInterface
 
     private function getAllDocumentsGenerator(): Generator
     {
-        foreach ($this->adapter->readAll($this->name) as $id => $content) {
+        foreach ($this->adapter->readAll($this->getName()) as $id => $content) {
             yield $id => $this->createDocument($id, $content);
         }
     }
 
-    private function sortDocuments(int $sort, array &$documents): void
+    private function sortDocuments(int|string $sort, array &$documents): void
     {
         switch ($sort) {
             case SORT_ASC:
+            case 'asc':
+            case 'ASC':
                 ksort($documents);
                 break;
+
             case SORT_DESC:
+            case 'desc':
+            case 'DESC':
                 krsort($documents);
                 break;
+
             default:
-                throw new DodException(sprintf('Invalid sort type "%s"', $sort));
+                throw new DodException(sprintf('Invalid sort type "%s" given', $sort));
         }
     }
 
     /**
      * @return array<DocumentInterface>
      */
-    public function getDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array
+    public function getDocumentsByFilter(callable $filter, int|string $sort = SORT_ASC): array
     {
         $documents = [];
         foreach ($this->getAllDocumentsGenerator() as $document) {
@@ -162,7 +168,7 @@ class Collection implements CollectionInterface, CollectionAwareInterface
     /**
      * @return array<DocumentInterface>
      */
-    public function getAllDocuments(int $sort = SORT_ASC): array
+    public function getAllDocuments(int|string $sort = SORT_ASC): array
     {
         $documents = iterator_to_array($this->getAllDocumentsGenerator());
         $this->sortDocuments($sort, $documents);

@@ -9,6 +9,8 @@ use DodLite\Collections\CollectionAwareInterface;
 use DodLite\Collections\CollectionBuilderInterface;
 use DodLite\Collections\CollectionInterface;
 use DodLite\Documents\DocumentBuilderInterface;
+use DodLite\Documents\DocumentInterface;
+use DodLite\Exceptions\AlreadyExistsException;
 
 class DocumentManager implements CollectionAwareInterface
 {
@@ -70,5 +72,32 @@ class DocumentManager implements CollectionAwareInterface
         }
 
         return $this->collections[$name];
+    }
+
+    /**
+     * @throws AlreadyExistsException
+     */
+    public function moveDocument(DocumentInterface $document, CollectionInterface $sourceCollection, CollectionInterface $targetCollection, bool $overrideExisting = false): void
+    {
+        if ($sourceCollection === $targetCollection) {
+            throw new DodException('Source and target collection cannot be the same');
+        }
+
+        // Check if document already exists in target collection
+        if (!$overrideExisting && $targetCollection->hasDocumentById($document->getId())) {
+            throw new AlreadyExistsException($targetCollection->getName(), $document->getId());
+        }
+
+        $targetCollection->writeDocument($document);
+        $sourceCollection->deleteDocument($document);
+    }
+
+    /**
+     * @throws AlreadyExistsException
+     */
+    public function moveDocumentById(string|int $id, CollectionInterface $sourceCollection, CollectionInterface $targetCollection, bool $overrideExisting = false): void
+    {
+        $document = $sourceCollection->getDocumentById($id);
+        $this->moveDocument($document, $sourceCollection, $targetCollection, $overrideExisting);
     }
 }
