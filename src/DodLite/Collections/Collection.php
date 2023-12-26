@@ -11,7 +11,7 @@ use DodLite\DodException;
 use DodLite\Exceptions\NotFoundException;
 use Generator;
 
-class Collection implements CollectionInterface, CollectionAwareInterface
+class Collection implements CollectionInterface
 {
     private readonly AdapterInterface $adapter;
 

@@ -8,13 +8,13 @@ use DodLite\Exceptions\NotFoundException;
 
 
 test('Reading non-existing data throws exception', function (): void {
-    $flysystemAdapter = new MemoryAdapter();
+    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
 
     $flysystemAdapter->read('collection', 'key');
 })->throws(NotFoundException::class);
 
 test('Writing and Reading data works', function (): void {
-    $flysystemAdapter = new MemoryAdapter();
+    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
 
     $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
     $data = $flysystemAdapter->read('collection', 'key');
@@ -23,7 +23,7 @@ test('Writing and Reading data works', function (): void {
 });
 
 test('Deleting data works', function (): void {
-    $flysystemAdapter = new MemoryAdapter();
+    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
 
     $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
     expect($flysystemAdapter->has('collection', 'key'))->toBeTrue();
@@ -47,7 +47,7 @@ test('readAll works', function (): void {
 
 
 test('readAll without data works', function (): void {
-    $flysystemAdapter = new MemoryAdapter();
+    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
 
     $documents = iterator_to_array($flysystemAdapter->readAll('collection'));
     expect($documents)->toBe([]);
