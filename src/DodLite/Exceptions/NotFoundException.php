@@ -8,26 +8,25 @@ use Throwable;
 
 class NotFoundException extends DodException
 {
+    use Traits\CollectionAwareTrait;
+
     public function __construct(
-        private readonly string          $collection,
-        private readonly string|int|null $id,
+        string                           $collection,
+        private readonly string|int|null $documentId,
         ?Throwable                       $previous = null,
     )
     {
-        if ($id === null) {
+        $this->collection = $collection;
+
+        if ($documentId === null) {
             parent::__construct(sprintf('Collection "%s" not found', $collection), previous: $previous);
         } else {
-            parent::__construct(sprintf('Document with id "%s" not found in collection "%s"', $id, $collection), previous: $previous);
+            parent::__construct(sprintf('Document with id "%s" not found in collection "%s"', $documentId, $collection), previous: $previous);
         }
     }
 
-    public function getCollection(): string
+    public function getDocumentId(): int|string|null
     {
-        return $this->collection;
-    }
-
-    public function getId(): int|string|null
-    {
-        return $this->id;
+        return $this->documentId;
     }
 }

@@ -112,7 +112,7 @@ class FlysystemAdapter implements AdapterInterface
                 }
             }
         } catch (FilesystemException $e) {
-            throw new NotFoundException($collection, id: null, previous: $e);
+            throw new NotFoundException($collection, documentId: null, previous: $e);
         }
     }
 }

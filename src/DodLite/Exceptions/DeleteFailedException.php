@@ -8,22 +8,18 @@ use Throwable;
 
 class DeleteFailedException extends DodException
 {
+    use Traits\CollectionAwareTrait;
+    use Traits\DocumentIdAwareTrait;
+
     public function __construct(
-        private readonly string     $collection,
-        private readonly string|int $id,
-        ?Throwable                  $previous = null,
+        string     $collection,
+        string|int $documentId,
+        ?Throwable $previous = null,
     )
     {
-        parent::__construct(sprintf('Failed to delete document with id "%s" in collection "%s"', $id, $collection), previous: $previous);
-    }
+        $this->collection = $collection;
+        $this->documentId = $documentId;
 
-    public function getCollection(): string
-    {
-        return $this->collection;
-    }
-
-    public function getId(): int|string
-    {
-        return $this->id;
+        parent::__construct(sprintf('Failed to delete document with id "%s" in collection "%s"', $documentId, $collection), previous: $previous);
     }
 }
