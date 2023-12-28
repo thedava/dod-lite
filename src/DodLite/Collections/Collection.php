@@ -143,6 +143,11 @@ class Collection implements CollectionInterface
                 krsort($documents);
                 break;
 
+            case SORT_REGULAR:
+            case 'none':
+                // No sorting
+                break;
+
             default:
                 throw new DodException(sprintf('Invalid sort type "%s" given', $sort));
         }
