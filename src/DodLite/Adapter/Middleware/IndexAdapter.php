@@ -6,6 +6,7 @@ namespace DodLite\Adapter\Middleware;
 use ArrayObject;
 use DateTime;
 use DodLite\Adapter\AdapterInterface;
+use DodLite\Adapter\MetaAdapterInterface;
 use Generator;
 
 /**

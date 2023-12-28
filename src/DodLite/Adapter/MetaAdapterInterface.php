@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace DodLite\Adapter\Middleware;
+namespace DodLite\Adapter;
 
 /**
  * For middleware adapters that provide meta functionality
