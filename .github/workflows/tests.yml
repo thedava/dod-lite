@@ -1,0 +1,32 @@
+on:
+    push:
+        branches:
+            - '**'
+    workflow_dispatch:
+
+concurrency:
+    group: tests-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    run:
+        name: Run tests
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php-versions: [ '8.1', '8.2', '8.3' ]
+        steps:
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-versions }}
+                    coverage: none
+                    tools: composer:v2
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Install dependencies
+                run: composer install --no-progress --no-suggest
+
+            -   name: Run pest tests
+                run: vendor/bin/pest tests/
