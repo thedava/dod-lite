@@ -7,15 +7,17 @@ A simple file based document-oriented pseudo database.
 The main goal was to have a library that kind of combines the functionality of SQLite and a document-oriented database like MongoDB:
 Store data simply in a file without the need of a separate running database.
 
-This library uses adapters for storing data on a medium of choice. This library comes with a [Flysystem](https://github.com/thephpleague/flysystem) adapter by default.
-
 ## Installation
 
 via Composer
 
 ```bash
-composer require thedava/dodlite
+composer require thedava/dod-lite
 ```
+
+## Extensions
+
+* [dod-lite-flysystem](https://github.com/thedava/dod-lite-flysystem) - Flysystem adapter for DodLite
 
 ## Basic principles
 
@@ -146,18 +148,21 @@ $documentManager->getCollection('users')->createDocument('john', [
 
 Adapters are used to store data on a medium of choice.
 
-### Flysystem
+### File
 
-The `FlysystemAdapter` uses the `League\Flysystem` to provide a simple way to store data. The usage is pretty simple:
+The `FileAdapter` provides a very simple way of storing data as files. The usage is pretty simple:
 
 ```php
 // Store data locally in files
 $documentManager = new \DodLite\DocumentManager(
-    new \DodLite\Adapter\FlysystemAdapter(
-        new \League\Flysystem\Filesystem(
-            new \League\Flysystem\Local\LocalFilesystemAdapter(
-               '/path/to/your/storage'
-            )
+    new \DodLite\Adapter\FileAdapter(
+           '/path/to/your/storage',
+           
+           // Define file and folder permissions
+           permissions: 0666,
+           
+           // Use either glob or DirectoryIterator
+           useGlob: false
         )
     )
 );
@@ -234,12 +239,8 @@ The primary adapter will be updated if configured to do so.
 $documentManager = new \DodLite\DocumentManager(
     new \DodLite\Adapter\Middleware\FallbackAdapter(
         new \DodLite\Adapter\MemoryAdapter(),
-        new \DodLite\Adapter\FlysystemAdapter(
-            new \League\Flysystem\Filesystem(
-                new \League\Flysystem\Local\LocalFilesystemAdapter(
-                   '/path/to/your/storage'
-                )
-            )
+        new \DodLite\Adapter\FileAdapter(
+           '/path/to/your/storage'
         ),
         updateFallbackOnFailedRead: true
     )
@@ -255,19 +256,11 @@ and then replicated to the secondary adapter. If a replication fails, the main a
 // Replicate data to a backup device
 $documentManager = new \DodLite\DocumentManager(
     new \DodLite\Adapter\Middleware\ReplicateAdapter(
-        new \DodLite\Adapter\FlysystemAdapter(
-            new \League\Flysystem\Filesystem(
-                new \League\Flysystem\Local\LocalFilesystemAdapter(
-                   '/path/to/your/storage'
-                )
-            )
+        new \DodLite\Adapter\FileAdapter(
+           '/path/to/your/storage'
         ),
-        new \DodLite\Adapter\FlysystemAdapter(
-            new \League\Flysystem\Filesystem(
-                new \League\Flysystem\Local\LocalFilesystemAdapter(
-                   '/path/to/your/backup/storage'
-                )
-            )
+        new \DodLite\Adapter\FileAdapter(
+           '/path/to/your/backup/storage'
         )
     )
 );
@@ -293,7 +286,7 @@ You can use the `FallbackAdapter` and the `ReplicateAdapter` to implement perfor
 $fastAdapter = new \DodLite\Adapter\MemoryAdapter();
 
 // Define a slow but persistent adapter. This could be a file based adapter.
-$slowAdapter = new \DodLite\Adapter\FlysystemAdapter(
+$slowAdapter = new \DodLite\Adapter\FileAdapter(
     new \League\Flysystem\Filesystem(
         new \League\Flysystem\Local\LocalFilesystemAdapter(
            '/path/to/your/storage'

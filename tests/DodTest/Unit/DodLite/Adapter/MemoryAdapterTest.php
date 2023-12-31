@@ -8,38 +8,38 @@ use DodLite\Exceptions\NotFoundException;
 
 
 test('Reading non-existing data throws exception', function (): void {
-    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
+    $memoryAdapter = new MemoryAdapter();
 
-    $flysystemAdapter->read('collection', 'key');
+    $memoryAdapter->read('collection', 'key');
 })->throws(NotFoundException::class);
 
 test('Writing and Reading data works', function (): void {
-    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
+    $memoryAdapter = new MemoryAdapter();
 
-    $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
-    $data = $flysystemAdapter->read('collection', 'key');
+    $memoryAdapter->write('collection', 'key', ['data' => 'value']);
+    $data = $memoryAdapter->read('collection', 'key');
 
     expect($data)->toBe(['data' => 'value']);
 });
 
 test('Deleting data works', function (): void {
-    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
+    $memoryAdapter = new MemoryAdapter();
 
-    $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
-    expect($flysystemAdapter->has('collection', 'key'))->toBeTrue();
-    expect($flysystemAdapter->read('collection', 'key'))->toBe(['data' => 'value']);
+    $memoryAdapter->write('collection', 'key', ['data' => 'value']);
+    expect($memoryAdapter->has('collection', 'key'))->toBeTrue();
+    expect($memoryAdapter->read('collection', 'key'))->toBe(['data' => 'value']);
 
-    $flysystemAdapter->delete('collection', 'key');
-    expect($flysystemAdapter->has('collection', 'key'))->toBeFalse();
+    $memoryAdapter->delete('collection', 'key');
+    expect($memoryAdapter->has('collection', 'key'))->toBeFalse();
 });
 
 test('readAll works', function (): void {
-    $flysystemAdapter = new MemoryAdapter();
+    $memoryAdapter = new MemoryAdapter();
 
-    $flysystemAdapter->write('collection', 'key', ['data' => 'value']);
-    $flysystemAdapter->write('collection', 'key2', ['data' => 'value2']);
+    $memoryAdapter->write('collection', 'key', ['data' => 'value']);
+    $memoryAdapter->write('collection', 'key2', ['data' => 'value2']);
 
-    $documents = iterator_to_array($flysystemAdapter->readAll('collection'));
+    $documents = iterator_to_array($memoryAdapter->readAll('collection'));
     expect($documents)
         ->toHaveKey('key')
         ->toHaveKey('key2');
@@ -47,8 +47,8 @@ test('readAll works', function (): void {
 
 
 test('readAll without data works', function (): void {
-    $flysystemAdapter = new \DodLite\Adapter\MemoryAdapter();
+    $memoryAdapter = new MemoryAdapter();
 
-    $documents = iterator_to_array($flysystemAdapter->readAll('collection'));
+    $documents = iterator_to_array($memoryAdapter->readAll('collection'));
     expect($documents)->toBe([]);
 });
