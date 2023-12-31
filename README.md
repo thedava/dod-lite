@@ -1,5 +1,7 @@
 # Document-oriented Database Lite
 
+[![.github/workflows/tests.yml](https://github.com/thedava/dod-lite/actions/workflows/tests.yml/badge.svg)](https://github.com/thedava/dod-lite/actions/workflows/tests.yml)
+
 A simple file based document-oriented pseudo database.
 
 **This library is still in alpha phase! Use at own risk!**
