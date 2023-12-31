@@ -10,7 +10,7 @@ class ReadOnlyAdapter extends PassThroughAdapter implements AdapterInterface
 {
     public function __construct(
         AdapterInterface      $adapter,
-        private readonly bool $throwExceptionOnWrite,
+        private readonly bool $throwExceptionOnModification = true
     )
     {
         parent::__construct($adapter);
@@ -18,14 +18,14 @@ class ReadOnlyAdapter extends PassThroughAdapter implements AdapterInterface
 
     public function write(string $collection, int|string $id, array $data): void
     {
-        if ($this->throwExceptionOnWrite) {
+        if ($this->throwExceptionOnModification) {
             throw new ReadOnlyException('write', $collection, $id);
         }
     }
 
     public function delete(string $collection, int|string $id): void
     {
-        if ($this->throwExceptionOnWrite) {
+        if ($this->throwExceptionOnModification) {
             throw new ReadOnlyException('delete', $collection, $id);
         }
     }

@@ -23,7 +23,12 @@ interface CollectionInterface extends CollectionAwareInterface
      */
     public function getAllDocuments(int $sort = SORT_ASC): array;
 
-    public function createDocument(string|int $id, array $content): DocumentInterface;
+    /**
+     * @param string|int $id      The primary identifier of the new document
+     * @param array      $content The content of the new document
+     * @param bool       $write   Whether to write the document directly to the database or just create an instance of the class
+     */
+    public function createDocument(string|int $id, array $content, bool $write = false): DocumentInterface;
 
     /**
      * @throws NotFoundException

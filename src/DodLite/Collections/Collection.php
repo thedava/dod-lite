@@ -41,7 +41,7 @@ class Collection implements CollectionInterface
         return $this->name;
     }
 
-    public function createDocument(string|int $id, array $content): DocumentInterface
+    public function createDocument(string|int $id, array $content, bool $write = false): DocumentInterface
     {
         if (isset($this->documents[$id])) {
             $document = $this->documents[$id];
@@ -49,11 +49,19 @@ class Collection implements CollectionInterface
             // Update content of existing document
             $document->setContent($content);
 
+            if ($write) {
+                $this->writeDocument($document);
+            }
+
             return $document;
         }
 
         $document = $this->manager->getDocumentBuilder()->createDocument($id, $content);
         $this->documents[$id] = $document;
+
+        if ($write) {
+            $this->writeDocument($document);
+        }
 
         return $document;
     }

@@ -12,8 +12,10 @@ use Generator;
 /**
  * Creates a custom index collection for faster listing
  */
-class IndexAdapter extends PassThroughAdapter implements AdapterInterface, MetaAdapterInterface
+class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaAdapterInterface
 {
+    private const FEATURE = 'index';
+
     private ArrayObject $index;
 
     public function __construct(
@@ -26,14 +28,9 @@ class IndexAdapter extends PassThroughAdapter implements AdapterInterface, MetaA
         $this->index = new ArrayObject();
     }
 
-    private function getIndexCollectionName(string $originCollection): string
-    {
-        return sprintf('%s.%s', $originCollection, 'index');
-    }
-
     private function loadIndex(string $collection): void
     {
-        $indexCollection = $this->getIndexCollectionName($collection);
+        $indexCollection = $this->getMetaCollectionName($collection, self::FEATURE);
 
         $this->index[$collection] = $this->adapter->has($this->indexCollection, $indexCollection)
             ? $this->adapter->read($this->indexCollection, $indexCollection)
@@ -46,7 +43,7 @@ class IndexAdapter extends PassThroughAdapter implements AdapterInterface, MetaA
     private function saveIndex(string $collection): void
     {
         ksort($this->index[$collection]['ids']);
-        $this->adapter->write($this->indexCollection, $this->getIndexCollectionName($collection), $this->index[$collection]);
+        $this->adapter->write($this->indexCollection, $this->getMetaCollectionName($collection, self::FEATURE), $this->index[$collection]);
     }
 
     public function addToIndex(string $collection, int|string $id): void

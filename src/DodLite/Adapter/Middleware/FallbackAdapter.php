@@ -12,46 +12,52 @@ use Throwable;
 class FallbackAdapter extends PassThroughAdapter implements AdapterInterface
 {
     public function __construct(
-        private readonly AdapterInterface $mainAdapter,
-        private readonly AdapterInterface $fallbackAdapter,
-        private readonly bool             $updateFallbackOnFailedRead,
+        private readonly AdapterInterface $primaryAdapter,
+        private readonly AdapterInterface $secondaryAdapter,
+        private readonly bool $updatePrimaryOnFailedRead,
     )
     {
-        parent::__construct($this->fallbackAdapter);
+        parent::__construct($this->secondaryAdapter);
     }
 
-    private function syncMainByFallback(string $collection, int|string $id): array
+    private function syncPrimary(string $collection, int|string $id): array
     {
-        $data = $this->fallbackAdapter->read($collection, $id);
+        try {
+            $data = $this->secondaryAdapter->read($collection, $id);
 
-        if ($this->updateFallbackOnFailedRead) {
-            try {
-                $this->mainAdapter->write($collection, $id, $data);
-            } catch (Throwable $e) {
-                throw new ReplicationFailedException('write', $collection, $id, $e);
+            if ($this->updatePrimaryOnFailedRead) {
+                $this->primaryAdapter->write($collection, $id, $data);
             }
-        }
 
-        return $data;
+            return $data;
+        } catch (NotFoundException $e) {
+            if ($this->updatePrimaryOnFailedRead) {
+                throw new ReplicationFailedException('read', $collection, $id, $e);
+            } else {
+                throw $e;
+            }
+        } catch (Throwable $e) {
+            throw new ReplicationFailedException('write', $collection, $id, $e);
+        }
     }
 
     public function read(string $collection, int|string $id): array
     {
         try {
-            return $this->mainAdapter->read($collection, $id);
+            return $this->primaryAdapter->read($collection, $id);
         } catch (NotFoundException) {
-            return $this->syncMainByFallback($collection, $id);
+            return $this->syncPrimary($collection, $id);
         }
     }
 
     public function has(string $collection, int|string $id): bool
     {
-        if ($this->mainAdapter->has($collection, $id)) {
+        if ($this->primaryAdapter->has($collection, $id)) {
             return true;
         }
 
-        if ($this->fallbackAdapter->has($collection, $id)) {
-            $this->syncMainByFallback($collection, $id);
+        if ($this->secondaryAdapter->has($collection, $id)) {
+            $this->syncPrimary($collection, $id);
 
             return true;
         }
@@ -62,9 +68,9 @@ class FallbackAdapter extends PassThroughAdapter implements AdapterInterface
     public function readAll(string $collection): Generator
     {
         try {
-            return $this->mainAdapter->readAll($collection);
+            return $this->primaryAdapter->readAll($collection);
         } catch (NotFoundException) {
-            return $this->fallbackAdapter->readAll($collection);
+            return $this->secondaryAdapter->readAll($collection);
         }
     }
 }
