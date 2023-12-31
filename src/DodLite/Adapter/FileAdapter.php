@@ -66,13 +66,7 @@ class FileAdapter implements AdapterInterface
 
     public function has(string $collection, string|int $id): bool
     {
-        try {
-            $this->read($collection, $id);
-
-            return true;
-        } catch (NotFoundException) {
-            return false;
-        }
+        return file_exists($this->getPath($collection, $id));
     }
 
     public function write(string $collection, string|int $id, array $data): void

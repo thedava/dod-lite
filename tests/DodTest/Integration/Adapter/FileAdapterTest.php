@@ -13,6 +13,7 @@ function createFileAdapter(): FileAdapter
 
     return new FileAdapter(
         $tempDir,
+        useGlob: true
     );
 }
 
