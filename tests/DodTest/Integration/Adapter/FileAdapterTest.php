@@ -5,17 +5,42 @@ namespace DodTest\Integration\Adapter;
 
 use DodLite\Adapter\FileAdapter;
 use DodLite\Exceptions\NotFoundException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
+function getTempDir(bool $create): string
+{
+    $tempDir = __DIR__ . DIRECTORY_SEPARATOR . 'dod-lite' . DIRECTORY_SEPARATOR . 'tmp-' . uniqid('', true);
+
+    if ($create) {
+        mkdir($tempDir, 0777, true);
+    }
+
+    return $tempDir;
+}
 
 function createFileAdapter(): FileAdapter
 {
-    $tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dod-lite' . DIRECTORY_SEPARATOR . uniqid('', true);
-    mkdir($tempDir, 0777, true);
-
     return new FileAdapter(
-        $tempDir,
-        useGlob: true
+        getTempDir(true),
     );
 }
+
+afterAll(function (): void {
+    if (is_dir($dir = dirname(getTempDir(false)))) {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileInfo) {
+            $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
+            $todo($fileInfo->getRealPath());
+        }
+
+        rmdir($dir);
+    }
+});
 
 test('Reading non-existing data throws exception', function (): void {
     $fileAdapter = createFileAdapter();
