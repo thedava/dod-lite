@@ -326,32 +326,32 @@ exception if there is one.
 
 Here is a list of the exception classes derived from `\DodLite\DodException`:
 
-**AlreadyExistsException**
-`\DodLite\Exceptions\AlreadyExistsException`
+**AlreadyExistsException**<br>
+`\DodLite\Exceptions\AlreadyExistsException`<br>
 Thrown exclusively by the `moveDocument` functionality of the DocumentManager. Indicates that the target collection already contains a document with the same identifier.
 
-**DeleteFailedException**
-`\DodLite\Exceptions\DeleteFailedException`
+**DeleteFailedException**<br>
+`\DodLite\Exceptions\DeleteFailedException`<br>
 Thrown when a document could not be deleted.
 
-**LockException**
-`\DodLite\Exceptions\LockException`
+**LockException**<br>
+`\DodLite\Exceptions\LockException`<br>
 Thrown when a lock could not be acquired. This exception is exclusively thrown by the `LockAdapter`.
 
-**NotFoundException**
-`\DodLite\Exceptions\NotFoundException`
+**NotFoundException**<br>
+`\DodLite\Exceptions\NotFoundException`<br>
 Thrown when a requested document is not found.
 
-**ReadOnlyException**
-`\DodLite\Exceptions\ReadOnlyException`
+**ReadOnlyException**<br>
+`\DodLite\Exceptions\ReadOnlyException`<br>
 Thrown when a modification operation (like read or write) is attempted on a read-only adapter. This exception is exclusively thrown by the `ReadOnlyAdapter` and
 only if configured to do so.
 
-**ReplicationFailedException**
-`\DodLite\Exceptions\ReplicationFailedException`
+**ReplicationFailedException**<br>
+`\DodLite\Exceptions\ReplicationFailedException`<br>
 Thrown when a replication failed. This exception is exclusively thrown by the `ReplicateAdapter` and only if the operation on the replicated adapter failed. If the operation
 failed on the main adapter regular exceptions like `WriteFailedException` will be thrown.
 
-**WriteFailedException**
-`\DodLite\Exceptions\WriteFailedException`
+**WriteFailedException**<br>
+`\DodLite\Exceptions\WriteFailedException`<br>
 Thrown when a document could not be written.
