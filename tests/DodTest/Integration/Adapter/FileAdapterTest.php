@@ -58,12 +58,11 @@ test('readAll works', function (): void {
     expect($documents)
         ->toHaveKey('key')
         ->toHaveKey('key2');
-})->skipOnLinux();
-
+});
 
 test('readAll without data works', function (): void {
     $fileAdapter = createFileAdapter('readAll-empty');
 
     $documents = iterator_to_array($fileAdapter->readAll('collection'));
     expect($documents)->toBe([]);
-})->skipOnLinux();
+});

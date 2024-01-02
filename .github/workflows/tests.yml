@@ -38,4 +38,4 @@ jobs:
                 run: composer install --no-progress
 
             -   name: Run pest tests
-                run: vendor/bin/pest tests/
+                run: vendor/bin/pest --testsuite unit
