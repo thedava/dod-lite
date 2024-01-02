@@ -5,6 +5,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 const DOD_TEST_ROOT = __DIR__;
 const DOD_TEMP_ROOT = DOD_TEST_ROOT . DIRECTORY_SEPARATOR . 'temp';
 
+define('DOD_TEST_ENV', $_ENV['DOD_TEST_ENV'] ?? 'local');
+
 function createDodTempDir(string $identifier): string
 {
     do {
