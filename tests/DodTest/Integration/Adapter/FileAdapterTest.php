@@ -58,7 +58,7 @@ test('readAll works', function (): void {
     expect($documents)
         ->toHaveKey('key')
         ->toHaveKey('key2');
-})->skip(DOD_TEST_ENV === 'github', 'Skipped due to unknown problem with github and this test');
+})->skipOnLinux();
 
 
 test('readAll without data works', function (): void {
@@ -66,4 +66,4 @@ test('readAll without data works', function (): void {
 
     $documents = iterator_to_array($fileAdapter->readAll('collection'));
     expect($documents)->toBe([]);
-})->skip(DOD_TEST_ENV === 'github', 'Skipped due to unknown problem with github and this test');
+})->skipOnLinux();
