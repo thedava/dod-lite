@@ -3,53 +3,32 @@ declare(strict_types=1);
 
 namespace DodTest\Integration\Adapter;
 
+use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\FileAdapter;
+use DodLite\Adapter\Middleware\IndexAdapter;
 use DodLite\Exceptions\NotFoundException;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
-function getTempDir(bool $create): string
+function createFileAdapter(string $test): AdapterInterface
 {
-    $tempDir = __DIR__ . DIRECTORY_SEPARATOR . 'dod-lite' . DIRECTORY_SEPARATOR . 'tmp-' . uniqid('', true);
-
-    if ($create) {
-        mkdir($tempDir, 0777, true);
-    }
-
-    return $tempDir;
-}
-
-function createFileAdapter(): FileAdapter
-{
-    return new FileAdapter(
-        getTempDir(true),
+    return new IndexAdapter(
+        new FileAdapter(
+            createDodTempDir('fileAdapterTest-' . $test),
+        )
     );
 }
 
 afterAll(function (): void {
-    if (is_dir($dir = dirname(getTempDir(false)))) {
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $fileInfo) {
-            $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
-            $todo($fileInfo->getRealPath());
-        }
-
-        rmdir($dir);
-    }
+    clearDodTempDir('fileAdapterTest-');
 });
 
 test('Reading non-existing data throws exception', function (): void {
-    $fileAdapter = createFileAdapter();
+    $fileAdapter = createFileAdapter('read-non-existing');
 
     $fileAdapter->read('collection', 'key');
 })->throws(NotFoundException::class);
 
 test('Writing and Reading data works', function (): void {
-    $fileAdapter = createFileAdapter();
+    $fileAdapter = createFileAdapter('write');
 
     $fileAdapter->write('collection', 'key', ['data' => 'value']);
     $data = $fileAdapter->read('collection', 'key');
@@ -58,7 +37,7 @@ test('Writing and Reading data works', function (): void {
 });
 
 test('Deleting data works', function (): void {
-    $fileAdapter = createFileAdapter();
+    $fileAdapter = createFileAdapter('delete');
 
     $fileAdapter->write('collection', 'key', ['data' => 'value']);
     expect($fileAdapter->has('collection', 'key'))->toBeTrue();
@@ -69,7 +48,7 @@ test('Deleting data works', function (): void {
 });
 
 test('readAll works', function (): void {
-    $fileAdapter = createFileAdapter();
+    $fileAdapter = createFileAdapter('readAll');
 
     $fileAdapter->write('collection', 'key', ['data' => 'value']);
     $fileAdapter->write('collection', 'key2', ['data' => 'value2']);
@@ -82,7 +61,7 @@ test('readAll works', function (): void {
 
 
 test('readAll without data works', function (): void {
-    $fileAdapter = createFileAdapter();
+    $fileAdapter = createFileAdapter('readAll-empty');
 
     $documents = iterator_to_array($fileAdapter->readAll('collection'));
     expect($documents)->toBe([]);

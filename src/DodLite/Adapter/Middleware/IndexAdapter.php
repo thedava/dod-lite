@@ -73,7 +73,7 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
     {
         $this->loadIndex($collection);
 
-        return isset($this->index[$collection][$id]);
+        return isset($this->index[$collection]['ids'][$id]);
     }
 
     public function delete(string $collection, int|string $id): void
