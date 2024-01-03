@@ -18,11 +18,6 @@ Thrown exclusively by the `moveDocument` functionality of the DocumentManager. I
 `\DodLite\Exceptions\DeleteFailedException`<br>
 Thrown when a document could not be deleted.
 
-### LockException
-
-`\DodLite\Exceptions\LockException`<br>
-Thrown when a lock could not be acquired. This exception is exclusively thrown by the `LockAdapter`.
-
 ### NotFoundException
 
 `\DodLite\Exceptions\NotFoundException`<br>
@@ -53,3 +48,8 @@ Here is the list of adapter specific exception classes that are derived from `\D
 
 `\DodLite\Exceptions\Adapter\AdapterInitializationFailedException`<br>
 Thrown when an adapter could not be initialized.
+
+### LockAdapterException
+
+`\DodLite\Exceptions\Adapter\LockAdapterException`<br>
+Thrown when a lock could not be acquired. This exception is exclusively thrown by the `LockAdapter`.

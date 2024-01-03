@@ -7,7 +7,8 @@ use DateTimeImmutable;
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\MetaAdapterInterface;
 use DodLite\DodException;
-use DodLite\Exceptions\LockException;
+use DodLite\Exceptions\Adapter\AdapterInitializationFailedException;
+use DodLite\Exceptions\Adapter\LockAdapterException;
 
 class LockAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaAdapterInterface
 {
@@ -24,7 +25,7 @@ class LockAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaA
         parent::__construct($adapter);
 
         if ($this->timeout < 1) {
-            throw new DodException('Timeout must be at least 1 second');
+            throw new AdapterInitializationFailedException('Timeout must be at least 1 second');
         }
     }
 
@@ -48,17 +49,20 @@ class LockAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaA
     {
         $metaCollection = $this->getMetaCollectionName($collection, self::FEATURE);
 
-        // Override lock first (just to be sure)
-        $this->adapter->write(
-            $metaCollection,
-            'lock',
-            [
-                'locked' => false,
-                'pid'    => getmypid(),
-            ]
-        );
+        try {
+//            $this->adapter->write(
+//                $metaCollection,
+//                'lock',
+//                [
+//                    'locked' => false,
+//                    'pid'    => getmypid(),
+//                ]
+//            );
 
-        $this->adapter->delete($metaCollection, 'lock');
+            $this->adapter->delete($metaCollection, 'lock');
+        } catch (DodException $e) {
+            throw new LockAdapterException('release', $collection, previous: $e);
+        }
     }
 
     private function hasLock(string $collection): bool
@@ -101,7 +105,7 @@ class LockAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaA
         $tries = 0;
         while ($this->hasLock($collection)) {
             if ($tries >= $this->maxTries) {
-                throw new LockException('get', $collection, previous: new DodException('Max tries exceeded'));
+                throw new LockAdapterException('get', $collection, previous: new DodException('Max tries exceeded'));
             }
             $tries++;
             sleep(1);
