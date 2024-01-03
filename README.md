@@ -29,10 +29,6 @@ $documentManager = new \DodLite\DocumentManager(
 );
 ```
 
-## Extensions
-
-* [dod-lite-flysystem](https://github.com/thedava/dod-lite-flysystem) - Flysystem adapter for DodLite
-
 ## Adapters
 
 DodLite uses adapters for storing data. Adapters are responsible for reading and writing data. They also provide additional functionality that is built on top of other adapters.
@@ -43,3 +39,13 @@ For a full list of adapters see the [Adapters](docs/04-Adapters.md) documentatio
 
 Every error that is thrown in DodLite is either a `\DodLite\DodException` or a derivative of it.
 For a full explanation of all exceptions see the [Exceptions](docs/05-Exceptions.md) documentation.
+
+## Extensions
+
+* [dod-lite-flysystem](https://github.com/thedava/dod-lite-flysystem) - Flysystem adapter for DodLite
+
+## Docs
+
+* [Concepts](docs/03-Concepts.md)
+* [Adapters](docs/04-Adapters.md)
+* [Exceptions](docs/05-Exceptions.md)
