@@ -5,15 +5,13 @@ namespace DodTest\Integration\Adapter;
 
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\FileAdapter;
-use DodLite\Adapter\Middleware\IndexAdapter;
 use DodLite\Exceptions\NotFoundException;
 
-function createFileAdapter(string $test): AdapterInterface
+function createFileAdapter(string $test, bool $useGlob = false): AdapterInterface
 {
-    return new IndexAdapter(
-        new FileAdapter(
-            createDodTempDir('fileAdapterTest-' . $test),
-        )
+    return new FileAdapter(
+        createDodTempDir('fileAdapterTest-' . $test),
+        useGlob: $useGlob,
     );
 }
 
@@ -47,9 +45,9 @@ test('Deleting data works', function (): void {
     expect($fileAdapter->has('collection', 'key'))->toBeFalse();
 });
 
-test('readAll works', function (): void {
+test('readAll works', function (bool $useGlob): void {
 
-    $fileAdapter = createFileAdapter('readAll');
+    $fileAdapter = createFileAdapter('readAll', $useGlob);
 
     $fileAdapter->write('collection', 'key', ['data' => 'value']);
     $fileAdapter->write('collection', 'key2', ['data' => 'value2']);
@@ -58,11 +56,17 @@ test('readAll works', function (): void {
     expect($documents)
         ->toHaveKey('key')
         ->toHaveKey('key2');
-});
+})->with([
+    false,
+    true,
+]);
 
-test('readAll without data works', function (): void {
-    $fileAdapter = createFileAdapter('readAll-empty');
+test('readAll without data works', function (bool $useGlob): void {
+    $fileAdapter = createFileAdapter('readAll-empty', $useGlob);
 
     $documents = iterator_to_array($fileAdapter->readAll('collection'));
     expect($documents)->toBe([]);
-});
+})->with([
+    false,
+    true,
+]);

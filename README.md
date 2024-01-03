@@ -158,17 +158,37 @@ The `FileAdapter` provides a very simple way of storing data as files. The usage
 // Store data locally in files
 $documentManager = new \DodLite\DocumentManager(
     new \DodLite\Adapter\FileAdapter(
-           '/path/to/your/storage',
-           
-           // Define file and folder permissions
-           permissions: 0666,
-           
-           // Use either glob or DirectoryIterator
-           useGlob: false
-        )
+        '/path/to/your/storage',
+        
+        // Define file and directory permissions
+        filePermissions: 0777,
+        directoryPermissions: 0777,
+        
+        // Use either glob or DirectoryIterator
+        useGlob: false
     )
 );
 ```
+
+The `FileAdapter` also brings its own custom Exception classes:
+
+`FileAdapterException`<br>
+Base exception class for all internal exception classes of the `FileAdapter`. Is also thrown if the given rootPath is invalid.
+Provides debugging methods with all parameters given to the FileAdapter:
+
+* `getAdapterRootPath() : string`
+* `getAdapterFilePermissions() : int`
+* `getAdapterDirectoryPermissions() : int`
+* `getAdapterUseGlob() : bool`
+  <br><br>
+
+`FileAdapterFunctionFailedException`<br>
+Internally thrown if a function call failed. Is never thrown directly but is always there as previous exception of another exception.
+Provides additional debugging methods:
+
+* `getFunction() : string`
+* `getPath() : string`
+* `getResult() : mixed`
 
 ### Memory
 

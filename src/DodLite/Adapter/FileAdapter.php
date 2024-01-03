@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace DodLite\Adapter;
 
 use DirectoryIterator;
-use DodLite\DodException;
+use DodLite\Exceptions\Adapter\FileAdapterException;
+use DodLite\Exceptions\Adapter\FileAdapterFunctionFailedException;
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
 use DodLite\Exceptions\WriteFailedException;
@@ -13,7 +14,6 @@ use DodLite\Normalizer\JsonDecodeNormalizer;
 use DodLite\Normalizer\JsonEncodeNormalizer;
 use DodLite\Normalizer\NormalizerInterface;
 use Generator;
-use RuntimeException;
 use Throwable;
 
 class FileAdapter implements AdapterInterface
@@ -30,13 +30,20 @@ class FileAdapter implements AdapterInterface
 
     public function __construct(
         string                $rootPath,
-        private readonly int  $permissions = 0666,
+        private readonly int $filePermissions = 0777,
+        private readonly int $directoryPermissions = 0777,
         private readonly bool $useGlob = false,
     )
     {
         $rootPath = realpath($rootPath);
         if (empty($rootPath)) {
-            throw new DodException(sprintf('Given rootPath "%s" not found!', $rootPath));
+            throw new FileAdapterException(
+                sprintf('Given rootPath "%s" not found!', $rootPath),
+                $rootPath,
+                $filePermissions,
+                $directoryPermissions,
+                $useGlob,
+            );
         }
         $this->rootPath = $rootPath;
 
@@ -44,6 +51,19 @@ class FileAdapter implements AdapterInterface
         $this->collectionNormalizer = new FileNameNormalizer();
         $this->dataEncoder = new JsonEncodeNormalizer();
         $this->dataDecoder = new JsonDecodeNormalizer();
+    }
+
+    private function functionFailed(string $function, mixed $result, string $path): FileAdapterFunctionFailedException
+    {
+        return new FileAdapterFunctionFailedException(
+            $function,
+            $path,
+            $result,
+            $this->rootPath,
+            $this->filePermissions,
+            $this->directoryPermissions,
+            $this->useGlob,
+        );
     }
 
     public function getRootPath(): string
@@ -73,14 +93,34 @@ class FileAdapter implements AdapterInterface
     {
         try {
             $path = $this->getPath($collection, $id);
-            $dir = dirname($path);
 
+            // Create collection directory recursively
+            $dir = dirname($path);
             if (!is_dir($dir)) {
-                mkdir($dir, permissions: $this->permissions, recursive: true);
+                $result = mkdir($dir, permissions: $this->directoryPermissions, recursive: true);
+                if ($result !== true) {
+                    throw $this->functionFailed('mkdir', $result, $dir);
+                }
             }
 
-            file_put_contents($path, (string)$this->dataEncoder->normalize($data), flags: LOCK_EX);
-            chmod($path, $this->permissions);
+            // Create file and change chmod before writing
+            if (!file_exists($path)) {
+                $result = touch($path);
+                if ($result !== true) {
+                    throw $this->functionFailed('touch', $result, $path);
+                }
+
+                $result = chmod($path, $this->filePermissions);
+                if ($result !== true) {
+                    throw $this->functionFailed('chmod', $result, $path);
+                }
+            }
+
+            // Write data to file
+            $result = file_put_contents($path, (string)$this->dataEncoder->normalize($data));
+            if ($result === false || $result === 0) {
+                throw $this->functionFailed('file_put_contents', $result, $path);
+            }
         } catch (Throwable $e) {
             throw new WriteFailedException($collection, $id, $e);
         }
@@ -89,7 +129,11 @@ class FileAdapter implements AdapterInterface
     private function readPath(string $collection, string|int $id, string $path): array
     {
         if (!file_exists($path)) {
-            throw new NotFoundException($collection, $id);
+            throw new NotFoundException(
+                $collection,
+                $id,
+                $this->functionFailed('file_exists', false, $path)
+            );
         }
 
         return $this->dataDecoder->normalize(
@@ -108,7 +152,7 @@ class FileAdapter implements AdapterInterface
             $path = $this->getPath($collection, $id);
 
             if (!unlink($path)) {
-                throw new RuntimeException(sprintf('Unlink returned false for "%s"', $path));
+                throw $this->functionFailed('unlink', false, $path);
             }
         } catch (Throwable $e) {
             throw new DeleteFailedException($collection, $id, $e);
