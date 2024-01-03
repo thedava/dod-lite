@@ -170,25 +170,19 @@ $documentManager = new \DodLite\DocumentManager(
 );
 ```
 
-The `FileAdapter` also brings its own custom Exception classes:
-
-`FileAdapterException`<br>
-Base exception class for all internal exception classes of the `FileAdapter`. Is also thrown if the given rootPath is invalid.
-Provides debugging methods with all parameters given to the FileAdapter:
-
-* `getAdapterRootPath() : string`
-* `getAdapterFilePermissions() : int`
-* `getAdapterDirectoryPermissions() : int`
-* `getAdapterUseGlob() : bool`
-  <br><br>
+The `FileAdapter` also brings its own custom Exception:
 
 `FileAdapterFunctionFailedException`<br>
 Internally thrown if a function call failed. Is never thrown directly but is always there as previous exception of another exception.
-Provides additional debugging methods:
+Provides additional debugging methods for the failed function call and the adapter configuration:
 
 * `getFunction() : string`
 * `getPath() : string`
 * `getResult() : mixed`
+* `getAdapterRootPath() : string`
+* `getAdapterFilePermissions() : int`
+* `getAdapterDirectoryPermissions() : int`
+* `getAdapterUseGlob() : bool`
 
 ### Memory
 
@@ -339,7 +333,7 @@ exception if there is one.
 
 ### Exception Classes
 
-Here is a list of the exception classes derived from `\DodLite\DodException`:
+Here is the list of the exception classes derived from `\DodLite\DodException`:
 
 **AlreadyExistsException**<br>
 `\DodLite\Exceptions\AlreadyExistsException`<br>
@@ -370,3 +364,9 @@ failed on the main adapter regular exceptions like `WriteFailedException` will b
 **WriteFailedException**<br>
 `\DodLite\Exceptions\WriteFailedException`<br>
 Thrown when a document could not be written.
+
+Here is the list of adapter specific exception classes that are derived from `\DodLite\Exceptions\Adapter\AbstractDodAdapterException` (which itself is derived from `\DodLite\DodException`):
+
+**AdapterInitializationFailedException**<br>
+`\DodLite\Exceptions\Adapter\AdapterInitializationFailedException`<br>
+Thrown when an adapter could not be initialized.

@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace DodLite\Exceptions\Adapter;
 
-class FileAdapterFunctionFailedException extends FileAdapterException
+class FileAdapterFunctionFailedException extends AbstractDodAdapterException
 {
     public function __construct(
         private readonly string $function,
         private readonly string $path,
         private readonly mixed  $result,
-        string                  $adapterRootPath,
-        int                     $adapterFilePermissions,
-        int                     $adapterDirectoryPermissions,
-        bool                    $adapterUseGlob,
+        private readonly string $adapterRootPath,
+        private readonly int    $adapterFilePermissions,
+        private readonly int    $adapterDirectoryPermissions,
+        private readonly bool   $adapterUseGlob,
     )
     {
         parent::__construct(
@@ -22,10 +22,6 @@ class FileAdapterFunctionFailedException extends FileAdapterException
                 $result === false ? 'false' : json_encode($result),
                 $path
             ),
-            $adapterRootPath,
-            $adapterFilePermissions,
-            $adapterDirectoryPermissions,
-            $adapterUseGlob,
         );
     }
 
@@ -42,5 +38,25 @@ class FileAdapterFunctionFailedException extends FileAdapterException
     public function getResult(): mixed
     {
         return $this->result;
+    }
+
+    public function getAdapterRootPath(): string
+    {
+        return $this->adapterRootPath;
+    }
+
+    public function getAdapterFilePermissions(): int
+    {
+        return $this->adapterFilePermissions;
+    }
+
+    public function getAdapterDirectoryPermissions(): int
+    {
+        return $this->adapterDirectoryPermissions;
+    }
+
+    public function getAdapterUseGlob(): bool
+    {
+        return $this->adapterUseGlob;
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace DodLite\Adapter;
 
 use DirectoryIterator;
-use DodLite\DodException;
+use DodLite\Exceptions\Adapter\AdapterInitializationFailedException;
 use DodLite\Exceptions\Adapter\FileAdapterFunctionFailedException;
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
@@ -37,7 +37,7 @@ class FileAdapter implements AdapterInterface
     {
         $rootPath = realpath($rootPath);
         if (empty($rootPath)) {
-            throw new DodException(
+            throw new AdapterInitializationFailedException(
                 sprintf('Given rootPath "%s" not found!', $rootPath),
                 previous: $this->functionFailed('realpath', false, $rootPath),
             );
