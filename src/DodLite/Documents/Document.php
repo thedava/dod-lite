@@ -27,4 +27,9 @@ class Document implements DocumentInterface
     {
         $this->content = $content;
     }
+
+    public function updateContent(array $updates): void
+    {
+        $this->content = array_replace_recursive($this->content, $updates);
+    }
 }

@@ -57,6 +57,35 @@ $collection->writeData('Adapters', [
     'file' => '04-Adapters.md',
     'headline' => 'Adapters',
     'description' => 'DodLite uses adapters to store data',
+]);
+
+// Create a document manually and persist it
+$document = new \DodLite\Documents\Document('Concepts', [
+    'file' => '03-Concepts.md',
+    'headline' => 'Concepts',
+    'description' => 'Basic principles',
+]);
+$collection->writeDocument($document);
+```
+
+### Updating data
+
+```php
+// Retrieve document
+$document = $collection->getDocument('Concepts');
+
+// Update content manually
+$content = $document->getContent();
+$content['description'] = 'DodLite uses collections and documents to store data';
+$document->setContent($content);
+
+// Update content via helper method (array_replace_recursive)
+$document->updateContent([
+    'headline' => 'Concepts and Basic principles',
+]);
+
+// Persist document
+$collection->writeDocument($document);
 ```
 
 ### Reading data
@@ -64,21 +93,21 @@ $collection->writeData('Adapters', [
 ```php
 // Get document
 $document = $collection->getDocument('Adapters');
-var_dump($document->getData()); // { 'file' => '04-Adapters.md', ... }
+var_dump($document->getContent()); // { 'file' => '04-Adapters.md', ... }
 
 // Get the first document that matches a filter
-$document = $collection->getDocumentByFilter(fn(Document $document) => $document->getData()['file'] === '05-Exceptions.md');
+$document = $collection->getDocumentByFilter(fn(Document $document) => $document->getContent()['file'] === '05-Exceptions.md');
 
 // Get all documents
 $documents = $collection->getAllDocuments();
 foreach ($documents as $id => $document) {
-    var_dump($document->getData());
+    var_dump($document->getContent());
 }
 
 // Get all documents filtered
-$documents = $collection->getAllDocumentsByFilter(fn(Document $document) => str_ends_with($document->getData()['file'], '.md'));
+$documents = $collection->getAllDocumentsByFilter(fn(Document $document) => str_ends_with($document->getContent()['file'], '.md'));
 foreach ($documents as $id => $document) {
-    var_dump($document->getData());
+    var_dump($document->getContent());
 }
 ```
 

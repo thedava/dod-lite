@@ -10,4 +10,6 @@ interface DocumentInterface
     public function getContent(): array;
 
     public function setContent(array $content): void;
+
+    public function updateContent(array $updates): void;
 }
