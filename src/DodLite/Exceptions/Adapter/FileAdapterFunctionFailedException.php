@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace DodLite\Exceptions\Adapter;
 
-class FileAdapterFunctionFailedException extends AbstractDodAdapterException
+class FileAdapterFunctionFailedException extends DodAdapterException
 {
     public function __construct(
         private readonly string $function,

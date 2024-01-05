@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace DodLite\Adapter\Middleware;
 
 use DodLite\Adapter\AdapterInterface;
+use DodLite\Exceptions\Adapter\ReplicationFailedException;
 use DodLite\Exceptions\NotFoundException;
-use DodLite\Exceptions\ReplicationFailedException;
 use Generator;
 use Throwable;
 

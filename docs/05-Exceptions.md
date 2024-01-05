@@ -26,14 +26,8 @@ Thrown when a requested document is not found.
 ### ReadOnlyException
 
 `\DodLite\Exceptions\ReadOnlyException`<br>
-Thrown when a modification operation (like read or write) is attempted on a read-only adapter. This exception is exclusively thrown by the `ReadOnlyAdapter` and
-only if configured to do so.
-
-### ReplicationFailedException
-
-`\DodLite\Exceptions\ReplicationFailedException`<br>
-Thrown when a replication failed. This exception is exclusively thrown by the `ReplicateAdapter` and only if the operation on the replicated adapter failed. If the operation
-failed on the main adapter regular exceptions like `WriteFailedException` will be thrown.
+Thrown when a modification operation (like read or write) is attempted on a read-only adapter. This exception is currently exclusively thrown by the `ReadOnlyAdapter` and
+only if configured to do so. It derives from `WriteFailedException`.
 
 ### WriteFailedException
 
@@ -42,7 +36,7 @@ Thrown when a document could not be written.
 
 ## Adapter specific exceptions
 
-Here is the list of adapter specific exception classes that are derived from `\DodLite\Exceptions\Adapter\AbstractDodAdapterException` (which itself is derived from `\DodLite\DodException`):
+Here is the list of adapter specific exception classes that are derived from `\DodLite\Exceptions\Adapter\DodAdapterException` (which itself is derived from `\DodLite\DodException`):
 
 ### AdapterInitializationFailedException
 
@@ -53,3 +47,9 @@ Thrown when an adapter could not be initialized.
 
 `\DodLite\Exceptions\Adapter\LockAdapterException`<br>
 Thrown when a lock could not be acquired. This exception is exclusively thrown by the `LockAdapter`.
+
+### ReplicationFailedException
+
+`\DodLite\Exceptions\Adapter\ReplicationFailedException`<br>
+Thrown when a replication failed. This exception is exclusively thrown by the `ReplicateAdapter` and only if the operation on the replicated adapter failed. If the operation
+failed on the main adapter regular exceptions like `WriteFailedException` will be thrown.

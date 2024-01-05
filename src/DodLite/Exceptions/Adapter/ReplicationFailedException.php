@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace DodLite\Exceptions;
+namespace DodLite\Exceptions\Adapter;
 
-use DodLite\DodException;
+use DodLite\Exceptions\Traits;
 use Throwable;
 
-class ReplicationFailedException extends DodException
+class ReplicationFailedException extends DodAdapterException
 {
     use Traits\CollectionAwareTrait;
     use Traits\DocumentIdAwareTrait;

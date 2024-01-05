@@ -9,7 +9,7 @@ use DodLite\DodException;
 /**
  * Adapter-specific root exception
  */
-abstract class AbstractDodAdapterException extends DodException
+class DodAdapterException extends DodException
 {
 
 }

@@ -5,7 +5,7 @@ namespace DodLite\Adapter\Middleware;
 
 use DodLite\Adapter\AdapterInterface;
 use DodLite\DodException;
-use DodLite\Exceptions\ReplicationFailedException;
+use DodLite\Exceptions\Adapter\ReplicationFailedException;
 use DodLite\Exceptions\WriteFailedException;
 
 class ReplicateAdapter extends PassThroughAdapter implements AdapterInterface

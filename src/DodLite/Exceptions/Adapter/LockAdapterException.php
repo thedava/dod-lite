@@ -6,7 +6,7 @@ namespace DodLite\Exceptions\Adapter;
 use DodLite\Exceptions\Traits;
 use Throwable;
 
-class LockAdapterException extends AbstractDodAdapterException
+class LockAdapterException extends DodAdapterException
 {
     use Traits\CollectionAwareTrait;
     use Traits\ActionAwareTrait;
