@@ -47,4 +47,9 @@ class MemoryAdapter implements AdapterInterface
             yield $id => $data;
         }
     }
+
+    public function getAllCollectionNames(): Generator
+    {
+        yield from array_keys($this->memory->getArrayCopy());
+    }
 }

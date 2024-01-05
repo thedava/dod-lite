@@ -70,3 +70,16 @@ test('readAll without data works', function (bool $useGlob): void {
     false,
     true,
 ]);
+
+test('getAllCollectionNames works', function (bool $useGlob): void {
+    $fileAdapter = createFileAdapter('getAllCollectionNames', $useGlob);
+
+    $fileAdapter->write('collection', 'key', ['data' => 'value']);
+    $fileAdapter->write('collection2', 'key2', ['data' => 'value2']);
+
+    $collectionNames = iterator_to_array($fileAdapter->getAllCollectionNames());
+    expect($collectionNames)->toContain('collection', 'collection2');
+})->with([
+    false,
+    true,
+]);

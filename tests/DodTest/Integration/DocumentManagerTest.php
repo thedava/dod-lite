@@ -157,3 +157,23 @@ test('Custom collection and document builder works', function () {
     $document = $collection->createDocument('document', ['source' => 'document']);
     expect($document->getContent())->toBe(['source' => 'document', 'custom' => 'custom']);
 });
+
+test('getAllCollections works', function () {
+    $manager = new DocumentManager(new MemoryAdapter());
+
+    $manager->getCollection('pest1')->writeData(1, ['pest']);
+    $manager->getCollection('pest2')->writeData(2, ['pest']);
+    $manager->getCollection('pest3')->writeData(3, ['pest']);
+
+    $collection = $manager->getCollection('pest4');
+    $collection->writeData(4, ['pest']);
+    $collection->getCollection('pest5')->writeData(5, ['pest']);
+
+    // Listing without sub-collections should not contain pest5
+    expect(array_keys(iterator_to_array($manager->getAllCollections(false))))
+        ->toBe(['pest1', 'pest2', 'pest3', 'pest4']);
+
+    // Listing with sub-collections should contain pest5 as sub-collection of pest4
+    expect(array_keys(iterator_to_array($manager->getAllCollections(true))))
+        ->toBe(['pest1', 'pest2', 'pest3', 'pest4', 'pest4.pest5']);
+});

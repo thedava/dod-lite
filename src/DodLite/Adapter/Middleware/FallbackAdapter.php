@@ -73,4 +73,13 @@ class FallbackAdapter extends PassThroughAdapter implements AdapterInterface
             return $this->secondaryAdapter->readAll($collection);
         }
     }
+
+    public function getAllCollectionNames(): Generator
+    {
+        try {
+            return $this->primaryAdapter->getAllCollectionNames();
+        } catch (NotFoundException) {
+            return $this->secondaryAdapter->getAllCollectionNames();
+        }
+    }
 }

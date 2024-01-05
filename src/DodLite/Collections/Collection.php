@@ -199,4 +199,17 @@ class Collection implements CollectionInterface
 
         return null;
     }
+
+    public function getAllCollections(): Generator
+    {
+        // Only return subCollections of this collection
+        foreach ($this->adapter->getAllCollectionNames() as $collectionName) {
+            if (str_starts_with($collectionName, $this->getName() . '.')) {
+                $parts = explode('.', $collectionName);
+                if (count($parts) >= 2) {
+                    yield $parts[1] => $this->getCollection($parts[1]);
+                }
+            }
+        }
+    }
 }

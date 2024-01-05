@@ -179,4 +179,23 @@ class FileAdapter implements AdapterInterface
             $iterator->next();
         }
     }
+
+    public function getAllCollectionNames(): Generator
+    {
+        if ($this->useGlob) {
+            foreach (glob($this->rootPath . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR, GLOB_ONLYDIR) as $dir) {
+                yield basename($dir);
+            }
+
+            return;
+        }
+
+        $iterator = new DirectoryIterator($this->rootPath);
+        while ($iterator->valid()) {
+            if (!$iterator->current()->isDot() && $iterator->current()->isDir()) {
+                yield $iterator->getBasename();
+            }
+            $iterator->next();
+        }
+    }
 }

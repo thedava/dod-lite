@@ -52,3 +52,13 @@ test('readAll without data works', function (): void {
     $documents = iterator_to_array($memoryAdapter->readAll('collection'));
     expect($documents)->toBe([]);
 });
+
+test('getAllCollectionNames works', function (): void {
+    $memoryAdapter = new MemoryAdapter();
+
+    $memoryAdapter->write('collection', 'key', ['data' => 'value']);
+    $memoryAdapter->write('collection2', 'key2', ['data' => 'value2']);
+
+    $collectionNames = $memoryAdapter->getAllCollectionNames();
+    expect($collectionNames)->toContain('collection', 'collection2');
+});

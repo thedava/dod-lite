@@ -41,4 +41,9 @@ class PassThroughAdapter implements AdapterInterface
     {
         yield from $this->adapter->readAll($collection);
     }
+
+    public function getAllCollectionNames(): Generator
+    {
+        yield from $this->adapter->getAllCollectionNames();
+    }
 }

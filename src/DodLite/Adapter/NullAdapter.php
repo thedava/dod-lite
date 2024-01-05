@@ -33,4 +33,9 @@ class NullAdapter implements AdapterInterface
     {
         yield from [];
     }
+
+    public function getAllCollectionNames(): Generator
+    {
+        yield from [];
+    }
 }

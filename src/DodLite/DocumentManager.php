@@ -11,6 +11,7 @@ use DodLite\Collections\CollectionInterface;
 use DodLite\Documents\DocumentBuilderInterface;
 use DodLite\Documents\DocumentInterface;
 use DodLite\Exceptions\AlreadyExistsException;
+use Generator;
 
 class DocumentManager implements CollectionAwareInterface
 {
@@ -99,5 +100,21 @@ class DocumentManager implements CollectionAwareInterface
     {
         $document = $sourceCollection->getDocumentById($id);
         $this->moveDocument($document, $sourceCollection, $targetCollection, $overrideExisting);
+    }
+
+    public function getAllCollections(bool $includeSubCollections = false): Generator
+    {
+        foreach ($this->adapter->getAllCollectionNames() as $collectionName) {
+            if (!$includeSubCollections) {
+                $parts = explode('.', $collectionName);
+
+                // Exclude subCollections but keep collections with a dot as prefix (like ".meta")
+                if (count($parts) > 1 && !empty($parts[0])) {
+                    continue;
+                }
+            }
+
+            yield $collectionName => $this->getCollection($collectionName);
+        }
     }
 }

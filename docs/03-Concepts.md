@@ -29,6 +29,18 @@ $documentManager = new \DodLite\DocumentManager(
 );
 ```
 
+The DocumentManager implements the `\DodLite\Collections\CollectionAwareInterface`. Here is a list of the most important methods:
+
+```php
+// Get collection(s)
+public function getCollection(string $name): CollectionInterface
+public function getAllCollections(bool $includeSubCollections = false): Generator
+
+// Move documents
+public function moveDocument(DocumentInterface $document, CollectionInterface $sourceCollection, CollectionInterface $targetCollection, bool $overrideExisting = false): void
+public function moveDocumentById(string|int $id, CollectionInterface $sourceCollection, CollectionInterface $targetCollection, bool $overrideExisting = false): void
+```
+
 ### Collections
 
 Collections are used to store documents. A collection is basically a list of documents. It provides the basic CRUD functionality for documents.
