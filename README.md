@@ -149,3 +149,4 @@ For a full explanation of all exceptions see the [Exceptions](docs/05-Exceptions
 * [Concepts](docs/03-Concepts.md)
 * [Adapters](docs/04-Adapters.md)
 * [Exceptions](docs/05-Exceptions.md)
+* [Utilities](docs/06-Utils.md)
