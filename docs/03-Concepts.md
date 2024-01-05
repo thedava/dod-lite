@@ -89,7 +89,7 @@ public function getDocumentByFilter(callable $filter): ?DocumentInterface;
 
 // Read all documents
 public function getAllDocuments(int $sort = SORT_ASC): array;
-public function getDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
+public function getAllDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
 ```
 
 #### SubCollections

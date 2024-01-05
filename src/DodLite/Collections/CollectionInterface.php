@@ -59,7 +59,7 @@ interface CollectionInterface extends CollectionAwareInterface
      * @return array<DocumentInterface>
      * @throws NotFoundException
      */
-    public function getDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
+    public function getAllDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
 
     public function clearDocumentCache(): void;
 }

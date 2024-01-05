@@ -164,7 +164,7 @@ class Collection implements CollectionInterface
     /**
      * @return array<DocumentInterface>
      */
-    public function getDocumentsByFilter(callable $filter, int|string $sort = SORT_ASC): array
+    public function getAllDocumentsByFilter(callable $filter, int|string $sort = SORT_ASC): array
     {
         $documents = [];
         foreach ($this->getAllDocumentsGenerator() as $document) {

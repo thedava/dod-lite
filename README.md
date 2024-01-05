@@ -20,13 +20,84 @@ composer require thedava/dod-lite
 ## Usage
 
 The core component of DodLite is the DocumentManager. It is used to manage collections and provides some utility functionality like moving Documents between collections.
-The full documentation of the DocumentManager and a explanation of the basic concepts of DodLite can be found [here](docs/03-Concepts.md).
+The full documentation of the DocumentManager and an explanation of the basic concepts of DodLite can be found [here](docs/03-Concepts.md).
 
 ```php
 // Create a new DocumentManager with the MemoryAdapter
 $documentManager = new \DodLite\DocumentManager(
     new \DodLite\Adapter\MemoryAdapter()
 );
+
+// Get/Create collection "docs"
+$collection = $documentManager->getCollection('docs');
+```
+
+### Writing data
+
+```php
+// Create a new document
+$document = $collection->createDocument('README', [
+    'file' => 'README.md',
+    'headline' => 'Document-oriented Database Lite',
+    'description' => 'A simple file based document-oriented pseudo database.',
+]);
+
+// Persist document
+$collection->writeDocument($document);
+
+// Create another document and persist it immediately
+$document = $collection->createDocument('Exceptions', [
+    'file' => '05-Exceptions.md',
+    'headline' => 'Exceptions',
+    'description' => 'DodLite employs a consistent error handling system',
+], write: true);
+
+// Write data directly without a document
+$collection->writeData('Adapters', [
+    'file' => '04-Adapters.md',
+    'headline' => 'Adapters',
+    'description' => 'DodLite uses adapters to store data',
+```
+
+### Reading data
+
+```php
+// Get document
+$document = $collection->getDocument('Adapters');
+var_dump($document->getData()); // { 'file' => '04-Adapters.md', ... }
+
+// Get the first document that matches a filter
+$document = $collection->getDocumentByFilter(fn(Document $document) => $document->getData()['file'] === '05-Exceptions.md');
+
+// Get all documents
+$documents = $collection->getAllDocuments();
+foreach ($documents as $id => $document) {
+    var_dump($document->getData());
+}
+
+// Get all documents filtered
+$documents = $collection->getAllDocumentsByFilter(fn(Document $document) => str_ends_with($document->getData()['file'], '.md'));
+foreach ($documents as $id => $document) {
+    var_dump($document->getData());
+}
+```
+
+### Check if data exists
+
+```php
+// Check if README exists
+var_dump($collection->hasDocumentById('README')); // true
+```
+
+### Deleting data
+
+```php
+// Delete document directly by id
+$collection->deleteDocumentById('Adapters');
+
+// Delete a document object
+$document = $collection->getDocument('Exceptions');
+$collection->deleteDocument($document);
 ```
 
 ## Adapters
