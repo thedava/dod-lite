@@ -16,13 +16,14 @@ class MemoryAdapter implements AdapterInterface
         $this->memory = new ArrayObject();
     }
 
+    private function getCollection(string $collection): ArrayObject
+    {
+        return $this->memory[$collection] ??= new ArrayObject();
+    }
+
     public function write(string $collection, int|string $id, array $data): void
     {
-        if (!isset($this->memory[$collection])) {
-            $this->memory[$collection] = new ArrayObject();
-        }
-
-        $this->memory[$collection][$id] = $data;
+        $this->getCollection($collection)[$id] = $data;
     }
 
     public function read(string $collection, int|string $id): array
@@ -33,17 +34,17 @@ class MemoryAdapter implements AdapterInterface
 
     public function has(string $collection, int|string $id): bool
     {
-        return isset($this->memory[$collection][$id]);
+        return $this->getCollection($collection)->offsetExists($id);
     }
 
     public function delete(string $collection, int|string $id): void
     {
-        unset($this->memory[$collection][$id]);
+        $this->getCollection($collection)->offsetUnset($id);
     }
 
     public function readAll(string $collection): Generator
     {
-        foreach ($this->memory[$collection] ?? [] as $id => $data) {
+        foreach ($this->getCollection($collection) as $id => $data) {
             yield $id => $data;
         }
     }
