@@ -28,6 +28,17 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         $this->index = new ArrayObject();
     }
 
+    public function deleteIndex(string $collection): void
+    {
+        $this->adapter->delete($this->indexCollection, $this->getMetaCollectionName($collection, self::FEATURE));
+    }
+
+    public function recreateIndex(string $collection): void
+    {
+        $this->deleteIndex($collection);
+        $this->loadIndex($collection);
+    }
+
     private function loadIndex(string $collection): void
     {
         $indexCollection = $this->getMetaCollectionName($collection, self::FEATURE);
@@ -35,9 +46,20 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         $this->index[$collection] = $this->adapter->has($this->indexCollection, $indexCollection)
             ? $this->adapter->read($this->indexCollection, $indexCollection)
             : [
+                'initial' => true,
                 'collection' => $collection,
                 'ids'        => [],
             ];
+
+        // Add existing data to index
+        if (isset($this->index[$collection]['initial'])) {
+            foreach ($this->adapter->readAll($collection) as $id => $data) {
+                $this->addToIndex($collection, $id, persist: false);
+            }
+
+            unset($this->index[$collection]['initial']);
+            $this->saveIndex($collection);
+        }
     }
 
     private function saveIndex(string $collection): void
@@ -46,14 +68,20 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         $this->adapter->write($this->indexCollection, $this->getMetaCollectionName($collection, self::FEATURE), $this->index[$collection]);
     }
 
-    public function addToIndex(string $collection, int|string $id): void
+    public function addToIndex(string $collection, int|string $id, bool $persist = true): void
     {
-        $this->loadIndex($collection);
+        if ($persist) {
+            $this->loadIndex($collection);
+        }
+
         $this->index[$collection]['ids'][$id] = [
             'id'      => $id,
             'created' => (new DateTime())->format('c'),
         ];
-        $this->saveIndex($collection);
+
+        if ($persist) {
+            $this->saveIndex($collection);
+        }
     }
 
     public function removeFromIndex(string $collection, int|string $id): void
