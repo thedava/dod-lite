@@ -41,3 +41,47 @@ test('Creating index explicitly on existing data works', function () {
     $indexAdapter->recreateIndex('test');
     expect($indexAdapter->has('test', 1))->toBeTrue();
 });
+
+test('Disposing works', function () {
+    $memory = new MemoryAdapter();
+    $indexAdapter = new IndexAdapter($memory, 'meta-test');
+
+    // Force creation of empty index
+    expect($indexAdapter->has('test', 1))->toBeFalse();
+    expect($indexAdapter->has('test-two', 1))->toBeFalse();
+
+    // Add keys directly to memory (bypassing index update)
+    $memory->write('test', 1, ['foo' => 'bar']);
+    $memory->write('test-two', 1, ['foo' => 'bar']);
+
+    // Check that the index still doesn't know these documents
+    expect($indexAdapter->has('test', 1))->toBeFalse();
+    expect($indexAdapter->has('test-two', 1))->toBeFalse();
+
+    $indexAdapter->dispose();
+
+    expect($indexAdapter->has('test', 1))->toBeTrue(); // Index for "test" will be recreated here
+    expect($indexAdapter->has('test-two', 1))->toBeTrue(); // Index for "test-two" will be recreated here
+});
+
+test('Refreshing works', function () {
+    $memory = new MemoryAdapter();
+    $indexAdapter = new IndexAdapter($memory, 'meta-test');
+
+    // Force creation of empty index
+    expect($indexAdapter->has('test', 1))->toBeFalse();
+    expect($indexAdapter->has('test-two', 1))->toBeFalse();
+
+    // Add keys directly to memory (bypassing index update)
+    $memory->write('test', 1, ['foo' => 'bar']);
+    $memory->write('test-two', 1, ['foo' => 'bar']);
+
+    // Check that the index still doesn't know these documents
+    expect($indexAdapter->has('test', 1))->toBeFalse();
+    expect($indexAdapter->has('test-two', 1))->toBeFalse();
+
+    $indexAdapter->refresh(); // All indices will be recreated here
+
+    expect($indexAdapter->has('test', 1))->toBeTrue();
+    expect($indexAdapter->has('test-two', 1))->toBeTrue();
+});

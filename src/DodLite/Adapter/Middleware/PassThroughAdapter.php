@@ -37,11 +37,17 @@ class PassThroughAdapter implements AdapterInterface
         $this->adapter->delete($collection, $id);
     }
 
+    /**
+     * @return Generator<string|int, array>
+     */
     public function readAll(string $collection): Generator
     {
         yield from $this->adapter->readAll($collection);
     }
 
+    /**
+     * @return Generator<string>
+     */
     public function getAllCollectionNames(): Generator
     {
         yield from $this->adapter->getAllCollectionNames();

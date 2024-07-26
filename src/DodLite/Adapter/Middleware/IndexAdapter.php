@@ -7,12 +7,13 @@ use ArrayObject;
 use DateTime;
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\MetaAdapterInterface;
+use DodLite\RefreshableInterface;
 use Generator;
 
 /**
  * Creates a custom index collection for faster listing
  */
-class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaAdapterInterface
+class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, MetaAdapterInterface, RefreshableInterface
 {
     private const FEATURE = 'index';
 
@@ -37,6 +38,20 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
     {
         $this->deleteIndex($collection);
         $this->loadIndex($collection);
+    }
+
+    public function dispose(): void
+    {
+        foreach ($this->getAllCollectionNames() as $collectionName) {
+            $this->deleteIndex($collectionName);
+        }
+    }
+
+    public function refresh(): void
+    {
+        foreach ($this->getAllCollectionNames() as $collectionName) {
+            $this->recreateIndex($collectionName);
+        }
     }
 
     private function loadIndex(string $collection): void

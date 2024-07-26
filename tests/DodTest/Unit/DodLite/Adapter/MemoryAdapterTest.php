@@ -45,7 +45,6 @@ test('readAll works', function (): void {
         ->toHaveKey('key2');
 });
 
-
 test('readAll without data works', function (): void {
     $memoryAdapter = new MemoryAdapter();
 
@@ -61,4 +60,18 @@ test('getAllCollectionNames works', function (): void {
 
     $collectionNames = $memoryAdapter->getAllCollectionNames();
     expect($collectionNames)->toContain('collection', 'collection2');
+});
+
+test('Disposing works', function (): void {
+    $memoryAdapter = new MemoryAdapter();
+
+    $memoryAdapter->write('collection', 'key', ['data' => 'value']);
+    $memoryAdapter->write('collection-two', 'key', ['data' => 'value']);
+    expect($memoryAdapter->has('collection', 'key'))->toBeTrue();
+    expect($memoryAdapter->has('collection-two', 'key'))->toBeTrue();
+
+    $memoryAdapter->dispose();
+
+    expect($memoryAdapter->has('collection', 'key'))->toBeFalse();
+    expect($memoryAdapter->has('collection-two', 'key'))->toBeFalse();
 });

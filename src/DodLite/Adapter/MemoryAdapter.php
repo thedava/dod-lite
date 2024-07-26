@@ -4,16 +4,22 @@ declare(strict_types=1);
 namespace DodLite\Adapter;
 
 use ArrayObject;
+use DodLite\DisposableInterface;
 use DodLite\Exceptions\NotFoundException;
 use Generator;
 
-class MemoryAdapter implements AdapterInterface
+class MemoryAdapter implements AdapterInterface, DisposableInterface
 {
     private ArrayObject $memory;
 
     public function __construct()
     {
         $this->memory = new ArrayObject();
+    }
+
+    public function dispose(): void
+    {
+        $this->memory->exchangeArray([]);
     }
 
     private function getCollection(string $collection): ArrayObject
