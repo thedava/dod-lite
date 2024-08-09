@@ -97,11 +97,11 @@ public function hasDocumentById(string|int $id): bool;
 
 // Read single document
 public function getDocumentById(string|int $id): DocumentInterface;
-public function getDocumentByFilter(callable $filter): ?DocumentInterface;
+public function getDocumentByFilter(\DodLite\Filter\FilterInterface $filter): ?DocumentInterface;
 
 // Read all documents
 public function getAllDocuments(int $sort = SORT_ASC): array;
-public function getAllDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
+public function getAllDocumentsByFilter(\DodLite\Filter\FilterInterface $filter, int $sort = SORT_ASC): array;
 ```
 
 #### SubCollections

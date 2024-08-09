@@ -6,6 +6,7 @@ namespace DodLite\Adapter\Middleware;
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Exceptions\Adapter\ReplicationFailedException;
 use DodLite\Exceptions\NotFoundException;
+use DodLite\Filter\FilterInterface;
 use Generator;
 use Throwable;
 
@@ -65,12 +66,12 @@ class FallbackAdapter extends PassThroughAdapter implements AdapterInterface
         return false;
     }
 
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
         try {
-            return $this->primaryAdapter->readAll($collection);
+            return $this->primaryAdapter->readAll($collection, $filter);
         } catch (NotFoundException) {
-            return $this->secondaryAdapter->readAll($collection);
+            return $this->secondaryAdapter->readAll($collection, $filter);
         }
     }
 

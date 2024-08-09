@@ -9,6 +9,8 @@ use DodLite\DocumentManager;
 use DodLite\Documents\DocumentInterface;
 use DodLite\DodException;
 use DodLite\Exceptions\NotFoundException;
+use DodLite\Filter\FilterInterface;
+use DodLite\Filter\TrueFilter;
 use Generator;
 
 class Collection implements CollectionInterface
@@ -129,11 +131,15 @@ class Collection implements CollectionInterface
         $this->deleteDocumentById($document->getId());
     }
 
-    private function getAllDocumentsGenerator(): Generator
+    private function getAllDocumentsGenerator(FilterInterface $filter): Generator
     {
-        foreach ($this->adapter->readAll($this->getName()) as $id => $content) {
-            yield $id => $this->createDocument($id, $content);
+        foreach ($this->adapter->readAll($this->getName(), $filter) as $id => $content) {
+            if ($filter->isExecuted() || $filter->isDocumentIncluded($this->createDocument($id, $content))) {
+                yield $id => $this->createDocument($id, $content);
+            }
         }
+
+        $filter->markAsExecuted();
     }
 
     private function sortDocuments(int|string $sort, array &$documents): void
@@ -164,13 +170,11 @@ class Collection implements CollectionInterface
     /**
      * @return array<DocumentInterface>
      */
-    public function getAllDocumentsByFilter(callable $filter, int|string $sort = SORT_ASC): array
+    public function getAllDocumentsByFilter(FilterInterface $filter, int|string $sort = SORT_ASC): array
     {
         $documents = [];
-        foreach ($this->getAllDocumentsGenerator() as $document) {
-            if ($filter($document)) {
-                $documents[] = $document;
-            }
+        foreach ($this->getAllDocumentsGenerator($filter) as $document) {
+            $documents[] = $document;
         }
 
         $this->sortDocuments($sort, $documents);
@@ -183,18 +187,16 @@ class Collection implements CollectionInterface
      */
     public function getAllDocuments(int|string $sort = SORT_ASC): array
     {
-        $documents = iterator_to_array($this->getAllDocumentsGenerator());
+        $documents = iterator_to_array($this->getAllDocumentsGenerator(new TrueFilter()));
         $this->sortDocuments($sort, $documents);
 
         return $documents;
     }
 
-    public function getDocumentByFilter(callable $filter): ?DocumentInterface
+    public function getDocumentByFilter(FilterInterface $filter): ?DocumentInterface
     {
-        foreach ($this->getAllDocumentsGenerator() as $document) {
-            if ($filter($document)) {
-                return $document;
-            }
+        foreach ($this->getAllDocumentsGenerator($filter) as $document) {
+            return $document;
         }
 
         return null;

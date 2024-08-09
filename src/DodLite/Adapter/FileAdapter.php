@@ -9,6 +9,7 @@ use DodLite\Exceptions\Adapter\FileAdapterFunctionFailedException;
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
 use DodLite\Exceptions\WriteFailedException;
+use DodLite\Filter\FilterInterface;
 use DodLite\Normalizer\FileNameNormalizer;
 use DodLite\Normalizer\JsonDecodeNormalizer;
 use DodLite\Normalizer\JsonEncodeNormalizer;
@@ -156,7 +157,7 @@ class FileAdapter implements AdapterInterface
         }
     }
 
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
         $path = $this->getPath($collection, null);
         if (!is_dir($path)) {

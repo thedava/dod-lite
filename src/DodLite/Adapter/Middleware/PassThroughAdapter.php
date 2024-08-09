@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DodLite\Adapter\Middleware;
 
 use DodLite\Adapter\AdapterInterface;
+use DodLite\Filter\FilterInterface;
 use Generator;
 
 /**
@@ -40,9 +41,9 @@ class PassThroughAdapter implements AdapterInterface
     /**
      * @return Generator<string|int, array>
      */
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
-        yield from $this->adapter->readAll($collection);
+        yield from $this->adapter->readAll($collection, $filter);
     }
 
     /**

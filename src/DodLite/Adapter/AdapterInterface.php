@@ -6,6 +6,7 @@ namespace DodLite\Adapter;
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
 use DodLite\Exceptions\WriteFailedException;
+use DodLite\Filter\FilterInterface;
 use Generator;
 
 interface AdapterInterface
@@ -31,7 +32,7 @@ interface AdapterInterface
     /**
      * @return Generator<string|int, array>
      */
-    public function readAll(string $collection): Generator;
+    public function readAll(string $collection, FilterInterface $filter): Generator;
 
     /**
      * @return Generator<string>

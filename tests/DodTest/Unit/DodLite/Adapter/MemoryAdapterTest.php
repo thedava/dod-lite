@@ -5,6 +5,7 @@ namespace DodTest\Unit\DodLite\Adapter;
 
 use DodLite\Adapter\MemoryAdapter;
 use DodLite\Exceptions\NotFoundException;
+use DodLite\Filter\TrueFilter;
 
 
 test('Reading non-existing data throws exception', function (): void {
@@ -39,7 +40,7 @@ test('readAll works', function (): void {
     $memoryAdapter->write('collection', 'key', ['data' => 'value']);
     $memoryAdapter->write('collection', 'key2', ['data' => 'value2']);
 
-    $documents = iterator_to_array($memoryAdapter->readAll('collection'));
+    $documents = iterator_to_array($memoryAdapter->readAll('collection', new TrueFilter()));
     expect($documents)
         ->toHaveKey('key')
         ->toHaveKey('key2');
@@ -48,7 +49,7 @@ test('readAll works', function (): void {
 test('readAll without data works', function (): void {
     $memoryAdapter = new MemoryAdapter();
 
-    $documents = iterator_to_array($memoryAdapter->readAll('collection'));
+    $documents = iterator_to_array($memoryAdapter->readAll('collection', new TrueFilter()));
     expect($documents)->toBe([]);
 });
 

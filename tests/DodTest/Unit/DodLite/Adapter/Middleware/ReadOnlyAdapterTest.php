@@ -6,6 +6,7 @@ namespace DodTest\Unit\DodLite\Adapter\Middleware;
 use DodLite\Adapter\MemoryAdapter;
 use DodLite\Adapter\Middleware\ReadOnlyAdapter;
 use DodLite\Exceptions\ReadOnlyException;
+use DodLite\Filter\TrueFilter;
 
 test('Reading data works', function () {
     $memory = new MemoryAdapter();
@@ -23,7 +24,7 @@ test('Reading all data works', function () {
 
     // Write via memory, read via readOnly
     $memory->write('test', 1, ['foo' => 'bar']);
-    $data = iterator_to_array($readOnly->readAll('test'));
+    $data = iterator_to_array($readOnly->readAll('test', new TrueFilter()));
     expect($data)->toHaveKey(1);
 });
 

@@ -6,6 +6,7 @@ namespace DodLite\Adapter;
 use ArrayObject;
 use DodLite\DisposableInterface;
 use DodLite\Exceptions\NotFoundException;
+use DodLite\Filter\FilterInterface;
 use Generator;
 
 class MemoryAdapter implements AdapterInterface, DisposableInterface
@@ -48,7 +49,7 @@ class MemoryAdapter implements AdapterInterface, DisposableInterface
         $this->getCollection($collection)->offsetUnset($id);
     }
 
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
         foreach ($this->getCollection($collection) as $id => $data) {
             yield $id => $data;

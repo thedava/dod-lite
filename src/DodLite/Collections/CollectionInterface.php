@@ -7,6 +7,7 @@ use DodLite\Documents\DocumentInterface;
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
 use DodLite\Exceptions\WriteFailedException;
+use DodLite\Filter\FilterInterface;
 
 interface CollectionInterface extends CollectionAwareInterface
 {
@@ -38,7 +39,7 @@ interface CollectionInterface extends CollectionAwareInterface
 
     public function hasDocumentById(string|int $id): bool;
 
-    public function getDocumentByFilter(callable $filter): ?DocumentInterface;
+    public function getDocumentByFilter(FilterInterface $filter): ?DocumentInterface;
 
     /**
      * @throws NotFoundException
@@ -59,7 +60,7 @@ interface CollectionInterface extends CollectionAwareInterface
      * @return array<DocumentInterface>
      * @throws NotFoundException
      */
-    public function getAllDocumentsByFilter(callable $filter, int $sort = SORT_ASC): array;
+    public function getAllDocumentsByFilter(FilterInterface $filter, int $sort = SORT_ASC): array;
 
     public function clearDocumentCache(): void;
 }

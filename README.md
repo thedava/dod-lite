@@ -96,7 +96,9 @@ $document = $collection->getDocument('Adapters');
 var_dump($document->getContent()); // { 'file' => '04-Adapters.md', ... }
 
 // Get the first document that matches a filter
-$document = $collection->getDocumentByFilter(fn(Document $document) => $document->getContent()['file'] === '05-Exceptions.md');
+$document = $collection->getDocumentByFilter(
+    new \DodLite\Filter\CallbackFilter(fn(Document $document) => $document->getContent()['file'] === '05-Exceptions.md')
+);
 
 // Get all documents
 $documents = $collection->getAllDocuments();
@@ -105,7 +107,9 @@ foreach ($documents as $id => $document) {
 }
 
 // Get all documents filtered
-$documents = $collection->getAllDocumentsByFilter(fn(Document $document) => str_ends_with($document->getContent()['file'], '.md'));
+$documents = $collection->getAllDocumentsByFilter(
+    new \DodLite\Filter\CallbackFilter(fn(Document $document) => str_ends_with($document->getContent()['file'], '.md'))
+);
 foreach ($documents as $id => $document) {
     var_dump($document->getContent());
 }

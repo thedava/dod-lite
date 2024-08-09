@@ -5,6 +5,7 @@ namespace DodLite\Adapter;
 
 use DodLite\Exceptions\DeleteFailedException;
 use DodLite\Exceptions\NotFoundException;
+use DodLite\Filter\FilterInterface;
 use Generator;
 
 class NullAdapter implements AdapterInterface
@@ -29,7 +30,7 @@ class NullAdapter implements AdapterInterface
         throw new DeleteFailedException($collection, $id);
     }
 
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
         yield from [];
     }

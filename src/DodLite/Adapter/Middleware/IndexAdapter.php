@@ -7,6 +7,8 @@ use ArrayObject;
 use DateTime;
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\MetaAdapterInterface;
+use DodLite\Filter\FilterInterface;
+use DodLite\Filter\TrueFilter;
 use DodLite\RefreshableInterface;
 use Generator;
 
@@ -68,7 +70,7 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
 
         // Add existing data to index
         if (isset($this->index[$collection]['initial'])) {
-            foreach ($this->adapter->readAll($collection) as $id => $data) {
+            foreach ($this->adapter->readAll($collection, new TrueFilter()) as $id => $data) {
                 $this->addToIndex($collection, $id, persist: false);
             }
 
@@ -125,7 +127,7 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         $this->removeFromIndex($collection, $id);
     }
 
-    public function readAll(string $collection): Generator
+    public function readAll(string $collection, FilterInterface $filter): Generator
     {
         $this->loadIndex($collection);
         foreach ($this->index[$collection]['ids'] as $id => $indexMeta) {
