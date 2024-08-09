@@ -97,6 +97,56 @@ $documentManager = new \DodLite\DocumentManager(
 );
 ```
 
+The `IndexAdapter` can also be used to speed up retrieval of data with the combination of value extraction and pre-filtering. This is useful if you have a lot of data and want to
+filter what data is really retrieved from the underlying adapter (to improve overall performance).
+By default, all documents will be loaded and then filtered by the collection. With value extraction and pre-filtering the filtering will be done before any document is retrieved
+from the underlying storage adapter.
+
+At first, you need to define the fields that should be indexed. You can do this by providing an instance of the `IndexValueExtractorInterface`.
+There are 2 predefined implementations:
+
+* `\DodLite\Adapter\Middleware\Index\ValueExtractor\CallbackIndexValueExtractor` - Allows you to define a callback that extracts the values from all stored documents
+* `\DodLite\Adapter\Middleware\Index\ValueExtractor\SimpleIndexValueExtractor` - Allows you to define a list of fields that will be extracted from all stored documents
+
+```php
+// Define a custom index value extractor (in this example: Add the value of the "discriminator" field to the index)
+$indexValueExtractor = new \DodLite\Adapter\Middleware\Index\ValueExtractor\SimpleIndexValueExtractor(['discriminator']);
+
+// Pass the extractor to the IndexAdapter
+$documentManager = new \DodLite\DocumentManager(
+    new \DodLite\Adapter\Middleware\IndexAdapter(
+        new \DodLite\Adapter\MemoryAdapter(),
+        indexValueExtractor: $indexValueExtractor,
+    )
+);
+
+// On storing a document, the index will also store the value of the "discriminator" field
+$collection = $documentManager->getCollection('myCollection');
+$collection->writeData(1, [
+    'discriminator' => 'myValue',
+    'otherField' => 'otherValue',
+]);
+$collection->writeData(2, [
+    'discriminator' => 'myOtherValue',
+    'otherField' => 'myValue',
+]);
+```
+
+To benefit from the performance increase, you have to pass an instance of the `IndexPreFilterInterface` to the `getAllDocumentsByFilter`/`getDocumentByFilter` methods
+to filter by your extracted values:
+
+```php
+$indexPreFilter = new \DodLite\Adapter\Middleware\Index\PreFilter\CallbackIndexPreFilter(
+    isDocumentIncludedCallback: fn(\DodLite\Documents\DocumentInterface $document) => true, // Let the regular filter method pass through everything
+    isIndexValueIncludedCallback: fn(array $indexValues) => $indexValues['discriminator'] === 'myValue',
+);
+
+// Get all documents with the specified discriminator
+// The IndexAdapter will pre-filter which documents are retrieved from the StorageAdapter and which won't. In this example, only the document with the id 1
+// will be retrieved directly from the MemoryAdapter. The document with the id 2 will be skipped entirely.
+$collection->getAllDocumentsByFilter($indexPreFilter);
+```
+
 ### ReadOnly
 
 The `ReadOnlyAdapter` prevents modifying data. This adapter is useful if you want to avoid that data is overwritten or deleted by accident.

@@ -7,6 +7,9 @@ use ArrayObject;
 use DateTime;
 use DodLite\Adapter\AdapterInterface;
 use DodLite\Adapter\MetaAdapterInterface;
+use DodLite\Adapter\Middleware\Index\PreFilter\IndexPreFilterInterface;
+use DodLite\Adapter\Middleware\Index\ValueExtractor\IndexValueExtractorInterface;
+use DodLite\Adapter\Middleware\Index\ValueExtractor\NoIndexValueExtractor;
 use DodLite\Filter\FilterInterface;
 use DodLite\Filter\TrueFilter;
 use DodLite\RefreshableInterface;
@@ -21,14 +24,18 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
 
     private ArrayObject $index;
 
+    private readonly IndexValueExtractorInterface $indexValueExtractor;
+
     public function __construct(
         private readonly AdapterInterface $adapter,
-        private readonly string $indexCollection = self::META_COLLECTION,
+        private readonly string       $indexCollection = self::META_COLLECTION,
+        ?IndexValueExtractorInterface $indexValueExtractor = null,
     )
     {
         parent::__construct($adapter);
 
         $this->index = new ArrayObject();
+        $this->indexValueExtractor = $indexValueExtractor ?? new NoIndexValueExtractor();
     }
 
     public function deleteIndex(string $collection): void
@@ -71,7 +78,7 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         // Add existing data to index
         if (isset($this->index[$collection]['initial'])) {
             foreach ($this->adapter->readAll($collection, new TrueFilter()) as $id => $data) {
-                $this->addToIndex($collection, $id, persist: false);
+                $this->addToIndex($collection, $id, $data, persist: false);
             }
 
             unset($this->index[$collection]['initial']);
@@ -85,15 +92,16 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
         $this->adapter->write($this->indexCollection, $this->getMetaCollectionName($collection, self::FEATURE), $this->index[$collection]);
     }
 
-    public function addToIndex(string $collection, int|string $id, bool $persist = true): void
+    public function addToIndex(string $collection, int|string $id, array $data, bool $persist = true): void
     {
         if ($persist) {
             $this->loadIndex($collection);
         }
 
         $this->index[$collection]['ids'][$id] = [
-            'id'      => $id,
-            'created' => (new DateTime())->format('c'),
+            'id'              => $id,
+            'created'         => (new DateTime())->format('c'),
+            'extractedValues' => $this->indexValueExtractor->extractValuesForIndex($data),
         ];
 
         if ($persist) {
@@ -111,7 +119,7 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
     public function write(string $collection, int|string $id, array $data): void
     {
         $this->adapter->write($collection, $id, $data);
-        $this->addToIndex($collection, $id);
+        $this->addToIndex($collection, $id, $data);
     }
 
     public function has(string $collection, int|string $id): bool
@@ -129,9 +137,14 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
 
     public function readAll(string $collection, FilterInterface $filter): Generator
     {
+        /** @var FilterInterface|IndexPreFilterInterface $filter */
+        $isPreFilter = $filter instanceof IndexPreFilterInterface;
+
         $this->loadIndex($collection);
         foreach ($this->index[$collection]['ids'] as $id => $indexMeta) {
-            yield $id => $this->adapter->read($collection, $id);
+            if (!$isPreFilter || $filter->isIndexValueIncluded($indexMeta['extractedValues'])) {
+                yield $id => $this->adapter->read($collection, $id);
+            }
         }
     }
 }
