@@ -98,10 +98,12 @@ class IndexAdapter extends AbstractMetaAdapter implements AdapterInterface, Meta
             $this->loadIndex($collection);
         }
 
+        $now = new DateTime();
         $this->index[$collection]['ids'][$id] = [
             'id'              => $id,
-            'created'         => (new DateTime())->format('c'),
-            'extractedValues' => $this->indexValueExtractor->extractValuesForIndex($data),
+            'created'         => $this->index[$collection]['ids'][$id] ?? $now->format('c'),
+            'updated'         => $now->format('c'),
+            'extractedValues' => $this->indexValueExtractor->extractValuesForIndex($collection, $id, $data),
         ];
 
         if ($persist) {

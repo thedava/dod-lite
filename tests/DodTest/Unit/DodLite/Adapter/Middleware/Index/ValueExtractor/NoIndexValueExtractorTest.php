@@ -8,7 +8,7 @@ use DodLite\Adapter\Middleware\Index\ValueExtractor\NoIndexValueExtractor;
 test('ValueExtractor works', function (array $documentData, array $expectedExtractedValues) {
     $valueExtractor = new NoIndexValueExtractor();
 
-    expect($valueExtractor->extractValuesForIndex($documentData))->toBe($expectedExtractedValues);
+    expect($valueExtractor->extractValuesForIndex('test', 1, $documentData))->toBe($expectedExtractedValues);
 })->with([
     'Case 1' => [
         ['foo' => '1'],

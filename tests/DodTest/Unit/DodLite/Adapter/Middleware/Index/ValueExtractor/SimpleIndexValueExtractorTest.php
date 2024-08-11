@@ -8,7 +8,7 @@ use DodLite\Adapter\Middleware\Index\ValueExtractor\SimpleIndexValueExtractor;
 test('ValueExtractor works', function (array $documentData, array $expectedExtractedValues) {
     $valueExtractor = new SimpleIndexValueExtractor(['type']);
 
-    expect($valueExtractor->extractValuesForIndex($documentData))->toBe($expectedExtractedValues);
+    expect($valueExtractor->extractValuesForIndex('test', 1, $documentData))->toBe($expectedExtractedValues);
 })->with([
     'Type foo'  => [
         ['foo' => '1', 'type' => 'foo'],

@@ -18,6 +18,6 @@ class CallbackIndexPreFilter extends CallbackFilter implements IndexPreFilterInt
 
     public function isIndexValueIncluded(array $extractedIndexData): bool
     {
-        return call_user_func_array($this->isIndexValueIncludedCallback, [$extractedIndexData]);
+        return call_user_func_array($this->isIndexValueIncludedCallback, func_get_args());
     }
 }

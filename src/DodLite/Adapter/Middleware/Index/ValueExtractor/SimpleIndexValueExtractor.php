@@ -12,7 +12,7 @@ class SimpleIndexValueExtractor implements IndexValueExtractorInterface
 
     }
 
-    public function extractValuesForIndex(array $documentData): array
+    public function extractValuesForIndex(string $collection, int|string $id, array $documentData): array
     {
         $extractedValues = [];
         foreach ($this->fieldsToExtract as $field) {

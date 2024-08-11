@@ -6,13 +6,13 @@ namespace DodTest\Unit\DodLite\Adapter\Middleware\Index\ValueExtractor;
 use DodLite\Adapter\Middleware\Index\ValueExtractor\CallbackIndexValueExtractor;
 
 test('ValueExtractor works', function (array $documentData, array $expectedExtractedValues) {
-    $valueExtractor = new CallbackIndexValueExtractor(function (array $documentData) {
+    $valueExtractor = new CallbackIndexValueExtractor(function (string $collectionName, string|int $id, array $documentData) {
         return [
             'result' => $documentData['value'] * $documentData['multiplier'],
         ];
     });
 
-    expect($valueExtractor->extractValuesForIndex($documentData))->toBe($expectedExtractedValues);
+    expect($valueExtractor->extractValuesForIndex('test', 1, $documentData))->toBe($expectedExtractedValues);
 })->with([
     '3x3'   => [
         ['value' => 3, 'multiplier' => 3],
