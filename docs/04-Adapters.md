@@ -270,7 +270,7 @@ $documentManager = new \DodLite\DocumentManager(
         new \DodLite\Adapter\Middleware\FallbackAdapter(
             $fastAdapter,
             $slowAdapter,
-            updateFallbackOnFailedRead: true
+            updatePrimaryOnFailedRead: true
         ),
         $slowAdapter
     )

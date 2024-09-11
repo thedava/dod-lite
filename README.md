@@ -22,11 +22,20 @@ composer require thedava/dod-lite
 The core component of DodLite is the DocumentManager. It is used to manage collections and provides some utility functionality like moving Documents between collections.
 The full documentation of the DocumentManager and an explanation of the basic concepts of DodLite can be found [here](docs/03-Concepts.md).
 
+For an easy start, you can use the `DocumentManagerFactory` to create a new DocumentManager instance (without deep diving into the adapters). The Factory provides multiple
+methods to create a DocumentManager instance for different use cases. See the [Adapters](docs/04-Adapters.md) documentation for more information.
+
 ```php
-// Create a new DocumentManager with the MemoryAdapter
-$documentManager = new \DodLite\DocumentManager(
-    new \DodLite\Adapter\MemoryAdapter()
-);
+# \DodLite\DocumentManagerFactory methods
+public static function createLocalFile(string $folderPath): DocumentManager
+public static function createCachedLocalFile(string $folderPath): DocumentManager
+public static function createIndexedLocalFile(string $folderPath): DocumentManager
+public static function createIndexCachedLocalFile(string $folderPath): DocumentManager
+```
+
+```php
+// Create a new DocumentManager
+$documentManager = \DodLite\DocumentManagerFactory::createLocalFile('/tmp');
 
 // Get/Create collection "docs"
 $collection = $documentManager->getCollection('docs');
