@@ -1,6 +1,6 @@
 {
     "name": "thedava/dod-lite",
-    "description": "A simple file based pseudo database",
+    "description": "Document-oriented Database Lite - A simple file based pseudo database",
     "type": "library",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "stable",
