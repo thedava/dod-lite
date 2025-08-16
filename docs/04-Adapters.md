@@ -36,9 +36,9 @@ $documentManager = new \DodLite\DocumentManager(
 
 The `FileAdapter` also brings its own custom Exception:
 
-`FileAdapterFunctionFailedException`<br>
-Internally thrown if a function call failed. It is never thrown directly, but it's always there as previous exception of another exception.
-It also provides additional debugging methods for the failed function call and the adapter configuration:
+`FileAdapterFunctionFailedException`  
+Internally thrown if a function call failed. It's never thrown directly but is always present as the previous exception of another exception.  
+It provides additional debugging information about the failed function call and the adapter configuration:
 
 ```php
 public function getFunction(): string;
@@ -49,6 +49,62 @@ public function getAdapterFilePermissions(): int;
 public function getAdapterDirectoryPermissions(): int;
 public function getAdapterUseGlob(): bool;
 ```
+
+> **Note:** If you need atomic writes (never exposing partially written files), consider the `AtomicFileAdapter` described below.
+
+### Atomic File
+
+The `AtomicFileAdapter` is a drop-in replacement for `FileAdapter` that guarantees **atomic writes and deletes** on Unix-like systems:
+
+- **Atomic write:** data is written to a temporary file in the same directory and then swapped in via `rename()` (atomic on Unix). Readers will either see the *old* or the *new* version—never a
+  half-written file.
+- **Atomic delete:** files are first renamed to a tombstone and then unlinked, avoiding readers racing with deletions.
+- **Durability toggle:** optionally call `fsync()` before the `rename()` for stronger durability guarantees (at the cost of extra I/O).
+- **Glob support:** identical to `FileAdapter`, you can choose `useGlob: true|false` to control the directory scanning strategy.
+
+Usage:
+
+```php
+// Store data locally with atomic writes/deletes
+$documentManager = new \DodLite\DocumentManager(
+    new \DodLite\Adapter\AtomicFileAdapter(
+        '/path/to/your/storage',
+
+        // Define file and directory permissions
+        filePermissions: 0777,
+        directoryPermissions: 0777,
+
+        // Enable durability: call fsync() before swapping the file in
+        durable: false,
+
+        // Choose directory scanning strategy for readAll/getAllCollectionNames
+        useGlob: false
+    )
+);
+```
+
+**When to use it**
+
+- You run multiple workers/processes and want to eliminate the possibility of partially written JSON files being observed.
+- You frequently overwrite documents and want *last-write-wins* semantics without transient corruption windows.
+- You replicate or back up the storage and want consistent snapshots at file boundaries.
+
+**Platform notes**
+
+- On **Unix/Linux**, `rename()` within the same filesystem and directory is atomic and overwrites the target path.
+- On **Windows**, `rename()` semantics differ; atomic replacement isn’t guaranteed the same way as on Unix. The adapter remains functional, but the atomicity guarantees are strongest on Unix-like
+  systems.
+- For network filesystems (e.g., NFS), atomic `rename()` generally holds if the temp and final files are on the same mount and directory; check your NFS settings if you need strict guarantees.
+
+**Performance considerations**
+
+- The atomic approach adds a temporary file creation and a `rename()`. In practice, this overhead is small and typically outweighed by the consistency benefits.
+- Setting `durable: true` issues an `fsync()` on the temporary file before `rename()`, improving crash safety at the cost of more I/O. Leave it off unless you truly need it.
+
+**Compatibility**
+
+- `AtomicFileAdapter` implements the same `AdapterInterface` and mirrors `FileAdapter` configuration options (permissions, `useGlob`).
+- You can switch from `FileAdapter` to `AtomicFileAdapter` without changing your application code.
 
 ### Memory
 
@@ -70,7 +126,6 @@ $documentManager = new \DodLite\DocumentManager(
     new \DodLite\Adapter\NullAdapter()
 );
 ```
-
 
 ## Middleware Adapters
 

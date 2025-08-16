@@ -30,20 +30,20 @@ class FileAdapter implements AdapterInterface
     private readonly NormalizerInterface $dataDecoder;
 
     public function __construct(
-        string                $rootPath,
-        private readonly int $filePermissions = 0777,
-        private readonly int $directoryPermissions = 0777,
-        private readonly bool $useGlob = false,
+        string                 $rootPath,
+        protected readonly int $filePermissions = 0777,
+        private readonly int   $directoryPermissions = 0777,
+        private readonly bool  $useGlob = false,
     )
     {
-        $rootPath = @realpath($rootPath);
-        if (empty($rootPath)) {
+        $realRootPath = @realpath($rootPath);
+        if (empty($realRootPath)) {
             throw new AdapterInitializationFailedException(
                 sprintf('Given rootPath "%s" not found!', $rootPath),
                 previous: $this->functionFailed('realpath', false, $rootPath),
             );
         }
-        $this->rootPath = $rootPath;
+        $this->rootPath = $realRootPath;
 
         $this->idNormalizer = new FileNameNormalizer();
         $this->collectionNormalizer = new FileNameNormalizer();
@@ -51,7 +51,7 @@ class FileAdapter implements AdapterInterface
         $this->dataDecoder = new JsonDecodeNormalizer();
     }
 
-    private function functionFailed(string $function, mixed $result, string $path): FileAdapterFunctionFailedException
+    protected function functionFailed(string $function, mixed $result, string $path): FileAdapterFunctionFailedException
     {
         return new FileAdapterFunctionFailedException(
             $function,
@@ -69,7 +69,11 @@ class FileAdapter implements AdapterInterface
         return $this->rootPath;
     }
 
-    private function getPath(string $collection, string|int|null $id): string
+    /**
+     * Compute the absolute file path for a given collection/id.
+     * Made protected so subclasses (e.g. AtomicFileAdapter) can reuse it.
+     */
+    protected function getPath(string $collection, string|int|null $id): string
     {
         $pathParts = [
             $this->rootPath,
@@ -92,39 +96,68 @@ class FileAdapter implements AdapterInterface
         try {
             $path = $this->getPath($collection, $id);
 
-            // Create collection directory recursively
-            $dir = dirname($path);
-            if (!is_dir($dir)) {
-                $result = @mkdir($dir, permissions: $this->directoryPermissions, recursive: true);
-                if ($result !== true) {
-                    throw $this->functionFailed('mkdir', $result, $dir);
-                }
-            }
+            // 1) Ensure collection directory exists
+            $this->ensureCollectionDir(dirname($path));
 
-            // Create file and change chmod before writing
-            if (!file_exists($path)) {
-                $result = @touch($path);
-                if ($result !== true) {
-                    throw $this->functionFailed('touch', $result, $path);
-                }
+            // 2) Ensure file exists and has correct permissions
+            $this->ensureFileExistsWithMode($path);
 
-                $result = @chmod($path, $this->filePermissions);
-                if ($result !== true) {
-                    throw $this->functionFailed('chmod', $result, $path);
-                }
-            }
-
-            // Write data to file
-            $result = @file_put_contents($path, (string)$this->dataEncoder->normalize($data));
-            if ($result === false || $result === 0) {
-                throw $this->functionFailed('file_put_contents', $result, $path);
-            }
+            // 3) Perform the actual write operation
+            $payload = (string)$this->dataEncoder->normalize($data);
+            $this->writeString($path, $payload);
         } catch (Throwable $e) {
             throw new WriteFailedException($collection, $id, $e);
         }
     }
 
-    private function readPath(string $collection, string|int $id, string $path): array
+    /**
+     * Hook: ensure the directory for a collection exists.
+     */
+    protected function ensureCollectionDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            $result = @mkdir($dir, permissions: $this->directoryPermissions, recursive: true);
+            if ($result !== true) {
+                throw $this->functionFailed('mkdir', $result, $dir);
+            }
+        }
+    }
+
+    /**
+     * Hook: ensure the file exists and set its mode.
+     * In AtomicFileAdapter this becomes a no-op.
+     */
+    protected function ensureFileExistsWithMode(string $path): void
+    {
+        if (!file_exists($path)) {
+            $result = @touch($path);
+            if ($result !== true) {
+                throw $this->functionFailed('touch', $result, $path);
+            }
+
+            $result = @chmod($path, $this->filePermissions);
+            if ($result !== true) {
+                throw $this->functionFailed('chmod', $result, $path);
+            }
+        }
+    }
+
+    /**
+     * Hook: perform the actual write.
+     * Default: direct file_put_contents.
+     */
+    protected function writeString(string $path, string $payload): void
+    {
+        $result = @file_put_contents($path, $payload);
+        if ($result === false || $result === 0) {
+            throw $this->functionFailed('file_put_contents', $result, $path);
+        }
+    }
+
+    /**
+     * Made protected so subclasses can reuse it.
+     */
+    protected function readPath(string $collection, string|int $id, string $path): array
     {
         if (!file_exists($path)) {
             throw new NotFoundException(
@@ -148,12 +181,19 @@ class FileAdapter implements AdapterInterface
     {
         try {
             $path = $this->getPath($collection, $id);
-
-            if (!@unlink($path)) {
-                throw $this->functionFailed('unlink', false, $path);
-            }
+            $this->unlinkPath($path);
         } catch (Throwable $e) {
             throw new DeleteFailedException($collection, $id, $e);
+        }
+    }
+
+    /**
+     * Hook: remove a file. AtomicFileAdapter overrides this.
+     */
+    protected function unlinkPath(string $path): void
+    {
+        if (!@unlink($path)) {
+            throw $this->functionFailed('unlink', false, $path);
         }
     }
 
