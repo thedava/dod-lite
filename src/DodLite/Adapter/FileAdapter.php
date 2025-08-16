@@ -36,7 +36,7 @@ class FileAdapter implements AdapterInterface
         private readonly bool $useGlob = false,
     )
     {
-        $rootPath = realpath($rootPath);
+        $rootPath = @realpath($rootPath);
         if (empty($rootPath)) {
             throw new AdapterInitializationFailedException(
                 sprintf('Given rootPath "%s" not found!', $rootPath),
@@ -95,7 +95,7 @@ class FileAdapter implements AdapterInterface
             // Create collection directory recursively
             $dir = dirname($path);
             if (!is_dir($dir)) {
-                $result = mkdir($dir, permissions: $this->directoryPermissions, recursive: true);
+                $result = @mkdir($dir, permissions: $this->directoryPermissions, recursive: true);
                 if ($result !== true) {
                     throw $this->functionFailed('mkdir', $result, $dir);
                 }
@@ -103,19 +103,19 @@ class FileAdapter implements AdapterInterface
 
             // Create file and change chmod before writing
             if (!file_exists($path)) {
-                $result = touch($path);
+                $result = @touch($path);
                 if ($result !== true) {
                     throw $this->functionFailed('touch', $result, $path);
                 }
 
-                $result = chmod($path, $this->filePermissions);
+                $result = @chmod($path, $this->filePermissions);
                 if ($result !== true) {
                     throw $this->functionFailed('chmod', $result, $path);
                 }
             }
 
             // Write data to file
-            $result = file_put_contents($path, (string)$this->dataEncoder->normalize($data));
+            $result = @file_put_contents($path, (string)$this->dataEncoder->normalize($data));
             if ($result === false || $result === 0) {
                 throw $this->functionFailed('file_put_contents', $result, $path);
             }
@@ -149,7 +149,7 @@ class FileAdapter implements AdapterInterface
         try {
             $path = $this->getPath($collection, $id);
 
-            if (!unlink($path)) {
+            if (!@unlink($path)) {
                 throw $this->functionFailed('unlink', false, $path);
             }
         } catch (Throwable $e) {
